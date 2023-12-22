@@ -31,7 +31,7 @@
                                     <div class="w-full relative mx-auto text-gray-600">
                                         <input
                                             class=" w-full border-2 bg-white h-10 px-5 rounded-md text-lg focus:outline p-6"
-                                            type="search" name="search" placeholder="Search here...">
+                                            type="text" name="search" id="search_history" placeholder="Search here...">
                                         <button type="submit" class="absolute right-0 top-0 mt-4 mr-4">
                                             <svg class="text-gray-600 h-4 w-4 fill-current"
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -66,33 +66,11 @@
                                         </tr>
                                     </thead>
 
-                                    <tbody id="tableBody">
-                                        <tr id="noRecordsMessage" class="text-center ">
-                                            <td class="py-8 px-8 border-b border-gray-200 text-gray-500"
-                                                colspan="5">
-                                                No existing records found.
-                                            </td>
-                                        </tr>
-                                        <tr class="text-center">
-                                            <td class="py-2 px-8 border-b border-gray-200 font-semibold">
-                                                <a href="#" class="clickable-cell">346457282</a>
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200">
-                                                <a href="#" class="clickable-cell">Juan dela Cruz</a>
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200">
-                                                <a href="#" class="clickable-cell">Student</a>
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200">
-                                                <a href="#" class="clickable-cell">Atomic Habits</a>
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200">
-                                                <a href="#" class="clickable-cell">11-22-2023</a>
-                                            </td>
-                                        </tr>
+                                    <tbody id="historyTableBody">
+                                       
                                     </tbody>
                                 </table>
-                                </class=>
+                              
                             </div>
 
                             <div x-show="openTab === 2"
@@ -102,7 +80,7 @@
                                     <div class="w-full relative mx-auto text-gray-600">
                                         <input
                                             class=" w-full border-2 bg-white h-10 px-5 rounded-md text-lg focus:outline p-6"
-                                            type="search" name="search" placeholder="Search here...">
+                                            type="text" name="search"  placeholder="Search here...">
                                         <button type="submit" class="absolute right-0 top-0 mt-4 mr-4">
                                             <svg class="text-gray-600 h-4 w-4 fill-current"
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -140,36 +118,13 @@
                                         </tr>
                                     </thead>
 
-                                    <tbody id="tableBodyReturned">
-                                        <tr id="noRecordsMessageReturned" class="text-center ">
-                                            <td class="py-8 px-8 border-b border-gray-200 text-gray-500"
-                                                colspan="5">
-                                                No existing records found.
-                                            </td>
-                                        </tr>
-                                        <tr class="text-center">
-                                            <td class="py-2 px-8 border-b border-gray-200 font-semibold">
-                                                <a href="#" class="clickable-cell">7881652752</a>
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200 font-semibold">
-                                                <a href="#" class="clickable-cell">346457282</a>
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200">
-                                                <a href="#" class="clickable-cell">Juan dela Cruz</a>
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200">
-                                                <a href="#" class="clickable-cell">Student</a>
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200">
-                                                <a href="#" class="clickable-cell">Atomic Habits</a>
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200">
-                                                <a href="#" class="clickable-cell">11-28-2023</a>
-                                            </td>
-                                        </tr>
+                                    <tbody id="historyTableBodyReturned">
+                                       
+                                       
+
                                     </tbody>
                                 </table>
-                            </div>
+                            </div>                      
                         </div>
                     </div>
                 </div>
@@ -183,4 +138,71 @@
 
 
 </div>
+
+
+<script>
+      $(document).ready(function() {
+
+          $.ajax({
+            url: '/history',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                var historyArray = response.data;
+
+                console.log(historyArray);
+                $('#historyTableBody').empty();
+
+                if (historyArray.length === 0) {
+
+                    var noHistoryRow = $('<tr class="text-center"><td colspan="5" class="p-3 border-b border-gray-200">No history of Borrowing</td></tr>');
+                     $('#historyTableBody').append(noHistoryRow);
+
+              } else {
+
+                historyArray.forEach(function(historyItem) {
+                    var tableRow = $('<tr class="text-center">' +
+                        '<td class="py-1 px-8 border-b border-gray-200 font-semibold"><p class="history_borrower_no"></p></td>' +
+                        '<td class="py-1 px-8 border-b border-gray-200"><p class="history_borrower_name"></p></td>' +
+                        '<td class="py-1 px-8 border-b border-gray-200"><p class="history_borrower_type"></p></td>' +
+                        '<td class="py-1 px-8 border-b border-gray-200"><p class="history_borrow_status"></p></td>' +
+                        '<td class="py-1 px-8 border-b border-gray-200"><p class="history_borrower_returned"></p></td>' +
+                        '</tr>');
+
+                    // Set the text content of each cell in the new row
+
+                    //CAPITALIZE LANG FIRST LETTER
+                    var status = historyItem.borrow_status.toLowerCase();
+                    status = status.charAt(0).toUpperCase() + status.slice(1);
+
+                    tableRow.find('.history_borrower_no').text(historyItem.borrower_id);
+                    tableRow.find('.history_borrower_name').text(historyItem.borrower.name);
+                    tableRow.find('.history_borrower_type').text(historyItem.borrower.type);
+                    tableRow.find('.history_borrow_status').text(status);
+                    tableRow.find('.history_borrower_returned').text(formatDate(historyItem.created_at));
+
+                    // Append the new row to the table body
+                    $('#historyTableBody').append(tableRow);
+                });
+
+                
+
+            }
+
+        
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+            return date.toLocaleDateString('en-US', options);
+        }
+    });
+</script>
+
 @endsection

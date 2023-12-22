@@ -4,9 +4,10 @@
         class="fixed inset-0 flex items-center justify-center z-20">
         <div x-cloak class="bg-gray-800 bg-opacity-75 absolute inset-0"></div>
         <div x-cloak class="bg-[#FCFCFF] p-6 rounded-lg z-10 w-1/2 h-auto">
-            <h2
-                class="uppercase bg-green-800 rounded-lg text-lg text-white p-2 font-semibold mb-4 text-center mb-6">
-                Borrow Book</h2>
+            <h2 class="uppercase bg-green-800 rounded-lg text-lg text-white p-2 font-semibold mb-4 text-center mb-6"
+            id="modal-title" x-text="sessionStorage.getItem('statusValue')">
+                </h2>
+                
             <div class="flex overflow-y-auto justify-center">
                 <div class="md:w-1/6 lg:w-4/6 w-2/4 ">
                     <img src="{{ asset('images/scan gif.gif') }}" alt="Description of the GIF">
@@ -24,8 +25,6 @@
             <div>
                 <input type="hidden" id="book_id" value=" {{ $bookId }}">
             </div>
-
-            <p id="dataContainer"> aaaaaaa</p>
 
             <p class="font-medium text-lg px-2 text-center text-md"><span
                     class="text-red-400 font-normal">Note: </span>Kindly scan the RFID
@@ -80,7 +79,9 @@
             </div>
             <div class="flex flex-row justify-end gap-2 mt-2">
                 <button  class="hidden" type="submit" id="borrowBtn"
-                    class="mt-4 bg-green-700 hover:bg-green-800 px-4 py-2 rounded-lg text-white font-medium">Borrow</button>
+                    class="mt-4 bg-green-700 hover:bg-green-800 px-4 py-2 rounded-lg text-white font-medium"> Borrow 
+                
+                </button>
                 <button x-on:click="showModal = false" type="button"
                     class="mt-4 bg-red-400 hover:bg-red-500 px-4 py-2 rounded-lg text-white font-medium">Cancel</button>
             </div>
@@ -94,77 +95,104 @@
 
 <script>
 
-$(document).ready(function() {
-    $('#borrowBtn').on('click', function() {
-        // var rfidId = $('#borrow_book_id').val();
-        const bookId = "{{ $bookId }}";
-        var rfidId = $('#borrow_book_id').val().trim();
+    $(document).ready(function() {
 
-        $.ajax({
-            url: '/description/borrow/' + bookId +'/' + rfidId,
-            type: 'GET',
-            success: function(response) {
 
-                alert('Borrowed successfully!');
+        var status_transaction = $('#modal-title').text();
+        var transaction;
 
+        if (status_transaction === 'Borrow Book') {
+            transaction = 'Borrow';
+        } else if (status_transaction === 'Return Book') {
+            transaction = 'Return';
+        }
+
+
+        // AJAX call triggered by a button click event
+        $('#borrowBtn').on('click', function() {
+            const bookId = "{{ $bookId }}";
+            var rfidId = $('#borrow_book_id').val().trim();
+
+            $.ajax({
+                url: '/description/' + transaction + '/' + bookId + '/' + rfidId,
+                type: 'GET',
+                success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.success,
+                    });
+
+                    location.reload();
+                    
+                } else if (response.error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: response.error,
+                    });
+                }
             },
-            error: function(xhr, status, error) {
-                alert('The book is already borrowed');
+            });
+        });
+
+
+        // AJAX call triggered by form submission event
+        $('#borrowForm').on('submit', function(e) {
+            e.preventDefault(); // Prevent form submission
+
+            const bookId = "{{ $bookId }}";
+            var rfidId = $('#borrow_book_id').val().trim();
+            var url = '/patron/' + rfidId + '/' + bookId;
+
+            // Check if the form is already being submitted
+            if ($(this).data('submitted') === true) {
+                return; // If already submitted, do nothing
+            }
+
+            // Set data attribute to indicate the form submission
+            $(this).data('submitted', true);
+
+            // Perform an AJAX request to fetch data based on the RFID ID
+            if (rfidId !== '') {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        lagayValueSaInputFields(data);
+                        $('#bookForm').off('submit').submit();
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'RFID ID is not existing',
+                        });
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'RFID ID is empty. Cannot proceed with form submission.',
+                });
             }
         });
     });
-});
 
+    function lagayValueSaInputFields(data) {
+        var date = new Date(data.book.updated_at);
+        var options = { month: 'short', day: 'numeric', year: 'numeric' };
+        var formattedDate = date.toLocaleDateString('en-US', options);
 
-$(document).ready(function() {
-    $('#borrowForm').on('submit', function(e) {
-        e.preventDefault(); // Prevent lang sa pag submit para d mag next page or refresh
-        const bookId = "{{ $bookId }}";
-        // $('#book_id').val(bookId);
-
-        var rfidId = $('#borrow_book_id').val().trim();
-        var url = '/patron/borrow/' + rfidId + '/' + bookId;
-
-        // Perform an AJAX request to fetch data based on the RFID ID
-        if (rfidId !== '') {
-            $.ajax({
-                url: url,
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-
-                    lagayValueSaInputFields(data);
-
-                    $('#bookForm').off('submit').submit();
-                },
-                error: function(xhr, status, error) {
-                  
-                    alert('RFID ID is not existing');
-                }
-            });
-        } else {
-            
-            alert('RFID ID is empty. Cannot proceed with form submission.');
-        }
-    });
-});
-
-
-
-function lagayValueSaInputFields(data) {
-
-
-    var date = new Date(data.book.updated_at);
-    var options = { month: 'short', day: 'numeric', year: 'numeric' };
-    var formattedDate = date.toLocaleDateString('en-US', options);
-
-
-    $('#borrower_name').val(data.patron.name || '');
+        $('#borrower_name').val(data.patron.name || '');
         $('#borrower_type').val(data.patron.type || '');
         $('#borrower_book').val(data.book.title || '');
         $('#borrower_time').val(formattedDate || '');
-
     }
+
 
 
 

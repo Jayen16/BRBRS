@@ -17,9 +17,20 @@
                     </p>
                     <div class="w-full max-h-[75vh] overflow-y-auto">
                         <ul class="justify-center font-medium text-lg px-2 py-0 text-left">
+                            <a href="{{route('showcategory', 'All Categories')}}" class= "category-link w-full md:w-auto" data-category="All Categories">
+                                <li class="hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left mt-4">
+                                    All
+                                </li>
+                            </a>
                             <a href="{{route('showcategory', 'Fiction')}}" class= "category-link w-full md:w-auto" data-category="Fiction">
                                 <li class="hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left mt-4">
                                     Fiction
+                                </li>
+                            </a>
+                        
+                            <a href="{{route('showcategory', 'Non-Fiction')}}" class="category-link w-full md:w-auto" data-category="Non-Fiction">
+                                <li class="hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left">
+                                    Non-Fiction
                                 </li>
                             </a>
                             <a href="{{route('showcategory', 'Reference')}}" class="category-link w-full md:w-auto" data-category="Reference">
@@ -27,13 +38,6 @@
                                     Reference
                                 </li>
                             </a>
-                            <a href="#" class="w-full md:w-auto">
-                                <li class="hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left"
-                                    data-category="Category3">
-                                    Category 3
-                                </li>
-                            </a>
-
                         </ul>
                     </div>
                 </div>
@@ -43,9 +47,8 @@
 
                 <div class="flex flex-col w-full rounded-md">
 
-                    <p class="font-semibold text-2xl text-white text-center uppercase p-2 bg-green-800 rounded-md">
-                        Category
-                        1
+                    <p class="font-semibold text-2xl text-white text-center uppercase p-2 bg-green-800 rounded-md" id="category_title">
+                        ALL CATEGORIES                     
                     </p>
 
 
@@ -53,13 +56,12 @@
 
           
                             <div x-data="{ showModal: false }" class="mb-4 flex justify-end" id="ajaxModal">
-                
+
                                 <button x-on:click="showModal = true" href="javascript:void(0)" id="createNewBook"
                                     class="bg-green-800 hover:bg-green-800 p-3 rounded-md text-white font-medium mt-4">Add Book
                                 </button>
 
-                                <x-Addbook /> 
-                                {{--  MODAL NG ADDING BOOK , x- prefix means this blade file from components folder --}}
+                                <x-Addbook />                        
 
                             </div>
 
@@ -130,8 +132,10 @@
     </div>
 
 
+<script type="text/javascript">
 
-    <script type="text/javascript">
+
+
 
          //DISPLAY DATA FROM API
         $(function() {
@@ -175,12 +179,8 @@
                     // Add more columns as needed
                 ],
 
-           
+         
             });
-
-
-            
-
 
 
             $('#customSearchBox').on('keyup', function() {
@@ -197,6 +197,8 @@
 
                 // Loop through the data and populate table rows dynamically
                 $.each(data, function(index, item) {
+
+            
                     var newRow = '<tr class="text-center">' +
                         '<td class="py-2 px-8 border-b border-gray-200 font-weight-bold">' + item
                         .isbn + '</td>' +
@@ -310,12 +312,15 @@
                     $('#category').val(data.category);
                     $('#location_rack').val(data.location_rack);
                     $('#condition').val(data.condition);
-                    $('#book_image').val(data.book_image);
                     $('#edition').val(data.edition);
                     $('#publisher').val(data.publisher);
                     $('#copyright_year').val(data.copyright_year);
                     $('#accession_number').val(data.accession_number);
                     $('#description').val(data.description);
+
+
+                    // var imageUrl = '{{ asset("storage/books") }}' + '/' + data.book_image;
+                    // $('#book-image').attr('src', imageUrl);
 
                     
                 });
@@ -326,67 +331,22 @@
                     var category = $(this).data('category');
 
                     
+
                     table.ajax.url("{{ route('showcategory', ':category') }}".replace(':category', category)).load();
+
+                    $('#category_title').text(category);
+
+
                 });
+        
+
         });
    
-
-
-        //     $('body').on('click', '.borrowBook', function() {
-        //     var book_id = $(this).data('id');
-
-        //     // Make a GET request to fetch book description based on book_id
-        //     $.get("{{ url('/description') }}/" + book_id, function(data) {
-        //         console.log(data); 
-
-        //     }).fail(function(xhr, status, error) {
-
-        //         console.error(xhr.responseText); 
-        //     });
-        // });
 
 
     </script>
 
 
-{{-- <script>
-    $(document).ready(function() {
-        $('.category-link').click(function(e) {
-            e.preventDefault(); // Prevent default behavior of anchor tag
-
-            var category = $(this).data('category');
-
-            $.ajax({
-                url: '/listbooks/' + category,
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    if (data.length > 0) {
-                        $('#tableBody').empty();
-
-                        $.each(data, function(index, book) {
-                            var row = '<tr>' +
-                                '<td>' + book.isbn + '</td>' +
-                                '<td>' + book.title + '</td>' +
-                                '<td>' + book.publisher + '</td>' +
-                                '<td>' + book.location_rack + '</td>' +
-                                '<td>' + book.status + '</td>' +
-                                '<td>Actions</td>' +
-                                '</tr>';
-
-                            $('#tableBody').append(row);
-                        });
-                    } else {
-                        $('#noRecordsMessage').text('No records found');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error(error);
-                }
-            });
-        });
-    });
-</script> --}}
 
     </div>
 @endsection

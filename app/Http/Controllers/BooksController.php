@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class BooksController extends Controller
@@ -16,6 +17,7 @@ class BooksController extends Controller
         
         if ($request->ajax()) {
             $data = Book::latest()->get();
+
             return DataTables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row){
@@ -24,7 +26,7 @@ class BooksController extends Controller
    
                            $btn = $btn.' <button href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</button>';
 
-                           $btn = $btn.' <a href="/description/'.$row->id.'" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Borrow" class="btn btn-warning btn-sm borrowBook">Borrow</a>';
+                           $btn = $btn.' <a href="/description/'.$row->id.'" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Borrow" class="btn btn-warning btn-sm borrowBook">Transaction</a>';
                            
     
                             return $btn;
@@ -40,31 +42,42 @@ class BooksController extends Controller
 
     public function show($category)
     {
-            $filteredBooks = Book::where('category', $category)->get();
-            return DataTables::of($filteredBooks)
-                ->addIndexColumn()
-                ->addColumn('action', function($row){
+        
+      // Check if the selected category exists in the database
+      if ($category === null || $category == 'All Categories') {
+        $books = Book::all(); // Retrieve all books if category is null or 'All Categories'
+    } else {
+        $categoryExists = Book::where('category', $category)->exists();
+    
+        if (!$categoryExists) {
+            $books = collect(); // Return an empty collection if the category doesn't exist
+        } else {
+            $books = Book::where('category', $category)->get();
+        }
+    }
+    
+    return DataTables::of($books)
+        ->addIndexColumn()
+        ->addColumn('action', function ($row) {
+            $btn = '<button x-on:click="showModal = true" href="javascript:void(0)" id="createNewBook" data-toggle="tooltip" data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook">Edit</button>';
+    
+            $btn .= ' <button href="javascript:void(0)" data-toggle="tooltip" data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</button>';
+    
+            $btn .= ' <a href="/description/'.$row->id.'" data-toggle="tooltip" data-id="'.$row->id.'" data-original-title="Borrow" class="btn btn-warning btn-sm borrowBook">Transaction</a>';
+    
+            return $btn;
+        })
+        ->rawColumns(['action'])
+        ->make(true);
+    
+      
+        
 
-                    $btn = '<button x-on:click="showModal = true" href="javascript:void(0)" id="createNewBook"  data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook" >Edit</button>';
-
-                    $btn = $btn.' <button href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</button>';
-
-
-                    
-
-                        return $btn;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-            // for filtering itong show
-            // goods na yung $filteredBooks , hindi lang maipalabas sa client side arte
     }
 
 
- 
     public function store(Request $request)
     {
-
         $validatedData = $request->validate([
             'title' => 'required|string',
             'author' => 'required|string',
@@ -73,19 +86,62 @@ class BooksController extends Controller
             'isbn' => 'nullable|string', 
             'category' => 'required|string',
             'condition' => 'required|string',
-            'book_image' => 'nullable|string', 
+            'book_image' => 'nullable|image|mimes:jpeg,png,jpg',
             'edition' => 'nullable|string',
             'publisher' => 'nullable|string',
             'copyright_year' => 'nullable|numeric',
             'accession_number' => 'nullable|string',
             'description' => 'nullable|string',
         ]);
+
+       
+
+        if ($request->hasFile('book_image')) {
+            $uploadedImage = $request->file('book_image');
+            $newFileName = uniqid().'.'.$uploadedImage->getClientOriginalExtension();
+            $storagePath = 'books'; 
     
-        // Now that the data is validated, proceed to store it
-        Book::updateOrCreate(['id' => $request->book_id], $validatedData);
+            $uploadedImage->storeAs($storagePath, $newFileName, 'public');
     
-        return response()->json(['success' => 'Book saved successfully.']);
+            $validatedData['book_image'] = $newFileName;
+        }
+        
+        
+            $book = Book::updateOrCreate(['id' => $request->book_id], $validatedData);
+        
+            if ($book) {
+                return response()->json(['success' => 'Book saved successfully.', 'book' => $book]);
+            } else {
+                return response()->json(['error' => 'Failed to save book.']);
+            }
     }
+
+
+ 
+    // public function store(Request $request)
+    // {
+
+    //     $validatedData = $request->validate([
+    //         'title' => 'required|string',
+    //         'author' => 'required|string',
+    //         'location_rack' => 'required|string',
+    //         'status' => 'required|string', 
+    //         'isbn' => 'nullable|string', 
+    //         'category' => 'required|string',
+    //         'condition' => 'required|string',
+    //         'book_image' => 'nullable|string|image', 
+    //         'edition' => 'nullable|string',
+    //         'publisher' => 'nullable|string',
+    //         'copyright_year' => 'nullable|numeric',
+    //         'accession_number' => 'nullable|string',
+    //         'description' => 'nullable|string',
+    //     ]);
+    
+    //     // Now that the data is validated, proceed to store it
+    //     Book::updateOrCreate(['id' => $request->book_id], $validatedData);
+    
+    //     return response()->json(['success' => 'Book saved successfully.']);
+    // }
 
     public function edit($id)
     {

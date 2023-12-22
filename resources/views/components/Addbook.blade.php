@@ -8,7 +8,7 @@
                 Add New Book</h2>
             <div class="h-[55vh] overflow-y-auto">
                 <!-- new row -->
-                <form id="bookForm" name="bookForm" class="form-horizontal">
+                <form id="bookForm" name="bookForm" class="form-horizontal" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="book_id" id="book_id">
                     <div class="border border-gray-200 rounded-lg p-2 py-4">
@@ -96,15 +96,15 @@
                                 <div class="">
                                     <div
                                         class="bg-white p-[2px] rounded-md w-24 h-24 items-center border border-green-700 mb-3 ml-1">
-                                        <img class="object-cover rounded-md" alt="user icon">
+                                        <img id="preview" class="w-full object-cover" src="#" alt="Preview Image" id="book_image">
                                     </div>
                                     <div>
-                                        <label
-                                            class="text-black text-sm px-3 py-1 rounded-md bg-gray-300 hover:bg-gray-400 hover:text-white">
-                                            <input type="file" accept="image/jpeg, image/png" id="book_image" name="book_image"
-                                                x-on:change="previewImage" class="hidden">
-                                            upload image
+                                        <input type="file" accept="image/jpeg, image/png" id="book_image" name="book_image" onchange="previewImage(event)">
+                                        <!-- Button to trigger file input -->
+                                        <label class="text-black text-sm px-3 py-1 rounded-md bg-gray-300 hover:bg-gray-400 hover:text-white" for="book_image">
+                                            Upload Image
                                         </label>
+                                                                            
                                     </div>
                                 </div>
                             </div>
@@ -198,7 +198,7 @@
                 <div class="flex flex-row justify-end gap-2 mt-2">
                     <button type="submit" id="saveBtn" value="create"
                         class="mt-4 bg-green-700 hover:bg-green-800 px-4 py-2 rounded-lg text-white font-medium">Add</button>
-                    <button x-on:click="showModal = false"
+                    <button x-on:click="showModal = false" type="button"
                         class="mt-4 bg-red-400 hover:bg-red-500 px-4 py-2 rounded-lg text-white font-medium">Cancel</button>                
                 
                 </div>
@@ -212,3 +212,25 @@
     </div>
     
 </div>
+
+<script>
+
+
+
+
+    function previewImage(event) {
+    const input = event.target;
+    const preview = document.getElementById('preview');
+
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+        }
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+</script>

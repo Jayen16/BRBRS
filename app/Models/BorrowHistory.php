@@ -25,7 +25,7 @@ class BorrowHistory extends Model
 
     public function borrower()
     {
-        return $this->belongsTo(Patron::class, 'borrowed_id', 'patron_id');
+        return $this->belongsTo(Patron::class, 'borrower_id', 'patron_id');
     }
     
 

@@ -60,10 +60,17 @@ Route::get('/editpatron/{id}', [PatronController::class, 'edit'])->name('editpat
 Route::post('/addpatrons', [PatronController::class, 'store'])->name('addpatrons');
 Route::delete('/deletepatron/{id}', [PatronController::class, 'destroy'])->name('deletepatron'); 
 
-Route::get('/patron/borrow/{id}/{book_id}', [PatronController::class, 'show'])->name('get_patron');
+Route::get('/patron/{id}/{book_id}', [PatronController::class, 'show'])->name('get_patron');
 
 
 // Route::get('/descriptio', [BooksController::class, 'index'])->name('listbooks'); 
-Route::get('/description/{id}', [BorrowController::class, 'show'])->name('description');
+Route::get('/description/book/{id}', [BorrowController::class, 'show'])->name('description');
+Route::get('/description/{id}', [BorrowController::class, 'displayshow'])->name('displaydescription');
 
-Route::get('/description/borrow/{id}/{patron_id}', [BorrowController::class, 'borrow'])->name('borrow');
+Route::get('/description/{transaction}/{id}/{patron_id}', [BorrowController::class, 'borrow'])->name('borrow');
+
+Route::get('/history/book/{id}', [BorrowReturnController::class, 'show'])->name('displayhistory');
+
+Route::get('/history', [BorrowReturnController::class, 'displayHistory'])->name('BorrowHistory');
+
+Route::get('/history/search', [BorrowReturnController::class, 'search'])->name('SearchHistory');
