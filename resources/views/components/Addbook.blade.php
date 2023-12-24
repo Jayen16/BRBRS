@@ -94,17 +94,16 @@
                         <div class="flex flex-row mb-3">
                             <div class="w-1/3 px-3">
                                 <div class="">
-                                    <div
-                                        class="bg-white p-[2px] rounded-md w-24 h-24 items-center border border-green-700 mb-3 ml-1">
-                                        <img id="preview" class="w-full object-cover" src="#" alt="Preview Image" id="book_image">
+                                    <div class="">
+                                        <div class="bg-white p-[2px] rounded-md w-24 h-24 items-center border border-green-700 mb-3 ml-1">
+                                            <img id="preview" class="w-full object-cover" src="#" alt="Preview Image">
+                                        </div>
                                     </div>
                                     <div>
-                                        <input type="file" accept="image/jpeg, image/png" id="book_image" name="book_image" onchange="previewImage(event)">
-                                        <!-- Button to trigger file input -->
+                                        <input type="file" accept="image/jpeg, image/png" id="book_image" name="book_image" onchange="previewImage(event)" class="hidden">
                                         <label class="text-black text-sm px-3 py-1 rounded-md bg-gray-300 hover:bg-gray-400 hover:text-white" for="book_image">
                                             Upload Image
                                         </label>
-                                                                            
                                     </div>
                                 </div>
                             </div>
@@ -213,24 +212,3 @@
     
 </div>
 
-<script>
-
-
-
-
-    function previewImage(event) {
-    const input = event.target;
-    const preview = document.getElementById('preview');
-
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-        }
-
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-</script>

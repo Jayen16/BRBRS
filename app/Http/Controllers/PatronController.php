@@ -27,12 +27,10 @@ class PatronController extends Controller
         }
         $students = Patron::where('type', 'student')->latest()->get(); 
         $faculties = Patron::where('type', 'faculty')->latest()->get();
-
         $staffs = Patron::where('type', 'staff')->latest()->get();
         $guests = Patron::where('type', 'guest')->latest()->get();
+
         return view('patron', compact('students', 'faculties', 'staffs', 'guests'));
-    
-    
 
     }
 

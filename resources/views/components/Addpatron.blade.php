@@ -97,7 +97,7 @@
                 <div class="flex flex-row justify-end gap-2 mt-2">
                     <button type="submit" id="saveBtn" value="create"
                         class="mt-4 bg-green-700 hover:bg-green-800 px-4 py-2 rounded-lg text-white font-medium">Add</button>
-                    <button x-on:click="showModal = false"
+                    <button x-on:click="showModal = false" type="button"
                         class="mt-4 bg-red-400 hover:bg-red-500 px-4 py-2 rounded-lg text-white font-medium">Cancel</button>                
                 
                 </div>

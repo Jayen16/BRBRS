@@ -190,7 +190,7 @@
 
                 $('#book-status').text(book_status);
 
-                var imageUrl = '{{ asset("books") }}' + '/' + selectedBook.book_image;
+                var imageUrl = '{{ asset("storage/books") }}' + '/' + selectedBook.book_image;
                 $('#book-image').attr('src', imageUrl);
                
                 

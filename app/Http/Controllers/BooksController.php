@@ -98,11 +98,15 @@ class BooksController extends Controller
 
         if ($request->hasFile('book_image')) {
             $uploadedImage = $request->file('book_image');
-            $newFileName = uniqid().'.'.$uploadedImage->getClientOriginalExtension();
-            $storagePath = 'books'; 
-    
+            $storagePath = 'books';
+            $title = $request->input('title');
+            
+            $extension = $uploadedImage->getClientOriginalExtension();
+        
+            $newFileName = $title . '.' . $extension;
+        
             $uploadedImage->storeAs($storagePath, $newFileName, 'public');
-    
+        
             $validatedData['book_image'] = $newFileName;
         }
         

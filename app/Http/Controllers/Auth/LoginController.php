@@ -58,7 +58,7 @@ class LoginController extends Controller
 
                 if ($user) {
                     // Redirect to admin dashboard or perform admin-specific actions
-                    return redirect()->route('home');
+                    return redirect()->route('dashboard');
                 } 
         }
 

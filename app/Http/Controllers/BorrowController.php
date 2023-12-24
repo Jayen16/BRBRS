@@ -25,15 +25,6 @@ class BorrowController extends Controller
     }
 
 
-
-    // public function show($id)
-    // {
-    //         $selectedBook = Book::where('id', $id)->get();
-
-    //         return view('bookdescription',compact('selectedBook'));
-    // }
-
-
     public function show($id)
     {
         $selectedBook = Book::find($id);

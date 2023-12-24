@@ -202,7 +202,7 @@
                     var newRow = '<tr class="text-center">' +
                         '<td class="py-2 px-8 border-b border-gray-200 font-weight-bold">' + item
                         .isbn + '</td>' +
-                        '<td class="py-2 px-8 border-b border-gray-200">' + item.title + '</td>' +
+                        '<td class="py-2 px-8 border-b border-gray-200" id="book_title">' + item.title + '</td>'
                         '<td class="py-2 px-8 border-b border-gray-200">' + item.author + '</td>' +
                         '<td class="py-2 px-8 border-b border-gray-200">' + item.location_rack +
                         '</td>' +
@@ -256,35 +256,55 @@
             });
 
 
+
+            function previewImage(event) {
+                var reader = new FileReader();
+                reader.onload = function() {
+                    var output = document.getElementById('preview');
+                    output.src = reader.result;
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            }
+
+
              //CREATE AND FOR UPDATE 
                 $('#saveBtn').click(function (e) {
                     e.preventDefault();
-                    $(this).html('Save');
+                    $(this).html('Saving..');
                 
+
+                    var formData = new FormData();           
+                    formData.append('book_image', $('#book_image')[0].files[0]);
+
+
+                    $('#bookForm').find('input, textarea, select').not('#book_image').each(function () {
+                        formData.append($(this).attr('name'), $(this).val());
+                    });
+
                     $.ajax({
-                    data: $('#bookForm').serialize(),
-                    url: "{{ route('addbooks') }}",
-                    type: "POST",
-                    dataType: 'json',
-                    success: function (data) {
-                
-                        $('#bookForm').trigger("reset");
-                        let alpineInstance = document.getElementById('ajaxModal');
+                        data: formData,
+                        url: "{{ route('addbooks') }}",
+                        type: "POST",
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            $('#bookForm').trigger("reset");
+                            let alpineInstance = document.getElementById('ajaxModal');
 
-                        if (alpineInstance) {
-                            alpineInstance.__x.$data.showModal = false; 
-                        } else {
-                            console.error('#ajaxModal element not found');
+                            if (alpineInstance) {
+                                alpineInstance.__x.$data.showModal = false; 
+                            } else {
+                                console.error('#ajaxModal element not found');
+                            }
+
+                            // table.draw();
+                            // console.log(data)
+                        },
+                        error: function (data) {
+                            console.log('Error:', data);
+                            $('#saveBtn').html('Save');
                         }
-
-                        table.draw();
-                        // console.log(data)
-                    },
-                    error: function (data) {
-                        console.log('Error:', data);
-                        $('#saveBtn').html('Save Changes');
-                    }
-                });
+                    });
             });
 
             //EDIT

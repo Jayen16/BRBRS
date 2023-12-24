@@ -18,14 +18,19 @@
     <script type="module" src="https://unpkg.com/@material-tailwind/html@latest/scripts/popover.js"></script>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>  
+
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script> --}}
+
+
+    {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script> --}}
+    {{-- <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>   --}}
+    
+    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" /> --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0/css/bootstrap.min.css"/>
     <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    {{-- <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet"> --}}
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
@@ -52,7 +57,7 @@
                                 <img src="../Login/CvSU logo.png" alt="">
                             </div>
                             <div class="flex flex-row items-center justify-between p-4">
-                                <a href="#"
+                                <a href="{{ route('dashboard') }}"                     
                                     class="text-lg text-white font-semibold tracking-widest uppercase rounded-lg focus:outline-none focus:shadow-outline">
                                     Library Borrowing and Returning System
                                 </a>
@@ -69,8 +74,8 @@
                                 </button>
                             </div>
                             <div 
-                                class="flex-col flex-grow hidden pb-4 md:pb-0 md:flex md:justify-end md:flex-row">
-                                <a href="{{ route('home') }}"
+                                class="flex-col mt-2 flex-grow hidden pb-4 md:pb-0 md:flex md:justify-end md:flex-row">
+                                <a href="{{ route('dashboard') }}"
                                 class="px-4 py-2 mt-2 text-sm font-semibold rounded-lg md:mt-0 md:ml-4  
                                 @if(request()->is('home')) bg-gray-200 text-gray-900 @else bg-transparent text-white-600 hover:text-gray-900 @endif 
                                 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline no-underline">
@@ -97,7 +102,7 @@
                                 </a>
                                 
                                 <div
-                                    class="ml-4 hover:text-gray-900 focus:text-gray-900 rounded-md hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline">
+                                    class="ml-4 mt-2 hover:text-gray-900 focus:text-gray-900 rounded-md hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline">
                                     <div class="flex gap-2 p-1">
                                         <img alt="tania andrew"
                                             src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=crop&amp;w=1480&amp;q=80"

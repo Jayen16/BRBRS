@@ -36,23 +36,31 @@
 
                             <form method="POST" action="{{ route('login') }}">
                                 @csrf
+                         
+
                                 <div>
-                                    <h1 class="text-3xl font-bold text-center mb-4">Login your Account</h1>
+                                    <h1 class="text-3xl font-bold text-center mb-2">Login your Account</h1>
                                     <p class="w-80 text-center text-sm mb-8 font-semibold text-gray-700 tracking-wide ">
                                         Borrow and Return Books with ease</p>
                                 </div>
+
+                                @error('username')
+                                <span class="text-red-400 font-small" >
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+
                                 <div class="space-y-1 text-left mb-6">
                                     <p class="block tracking-wide text-grey-400 text-md font-medium" for="">
                                         Username
                                     </p>
                                     <input placeholder="Username" id="username" type="text" name="username" value="{{ old('username') }}"
                                         class="block text-sm py-3 px-4 rounded-md w-full border outline-none focus:border-green-600" />
-                                        @error('username')
-                                        <span class="text-red" >
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                        @enderror
+                                
                                 </div>
+
+                             
+
                                 <div class="space-y-1 text-left mb-10">
                                     <p class="block tracking-wide text-grey-400 text-md font-medium">
                                         Password
@@ -67,9 +75,11 @@
                                  @enderror
                                 <div class="text-center mt-6">
                                     <button type="submit" 
-                                        class="py-3 w-64 text-xl text-white bg-green-600 hover:bg-green-700 transition-all duration-200 ease-in-out rounded-lg">Log
-                                        in
+                                        class="py-3 w-64 text-xl text-white bg-green-600 hover:bg-green-700 transition-all duration-200 ease-in-out rounded-lg">
+                                        Log in
                                     </button>
+                                    <br><br>
+                                    <a href="{{ route('register') }}"><small>Click here if you don't have an account yet.</small></a>
                                 </div>
                             </form>
                         </div>

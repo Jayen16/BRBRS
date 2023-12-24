@@ -28,16 +28,16 @@
                                 </div>
                                 <div class="w-full">
                                     <div class="mb-4 flex space-x-4 p-2 bg-white rounded-lg shadow-md border-2">
-                                        <button x-on:click="openTab = 1" x-on:click.away="redrawDataTables(1)" :class="{ 'bg-green-800 text-white': openTab === 1 }" 
+                                        <button x-on:click="openTab = 1" :class="{ 'bg-green-800 text-white': openTab === 1 }" 
                                             :class="{ 'bg-green-800 text-white': openTab === 1 }"
                                             class="flex-1 py-3 px-4 rounded-md focus:outline-none border-2 uppercase font-medium focus:shadow-outline-blue transition-all duration-300">Student</button>
-                                        <button x-on:click="openTab = 2" x-on:click.away="redrawDataTables(2)" :class="{ 'bg-green-800 text-white': openTab === 2 }" 
+                                        <button x-on:click="openTab = 2"  :class="{ 'bg-green-800 text-white': openTab === 2 }" 
                                             :class="{ 'bg-green-800 text-white': openTab === 2 }"
                                             class="flex-1 py-3 px-4 rounded-md focus:outline-none border-2 uppercase font-medium focus:shadow-outline-blue transition-all duration-300">Faculty</button>
-                                        <button x-on:click="openTab = 3" x-on:click.away="redrawDataTables(3)" :class="{ 'bg-green-800 text-white': openTab === 3 }" 
+                                        <button x-on:click="openTab = 3"  :class="{ 'bg-green-800 text-white': openTab === 3 }" 
                                             :class="{ 'bg-green-800 text-white': openTab === 3 }"
                                             class="flex-1 py-3 px-4 rounded-md focus:outline-none border-2 uppercase font-medium focus:shadow-outline-blue transition-all duration-300">Staff</button>
-                                        <button x-on:click="openTab = 4" x-on:click.away="redrawDataTables(4)" :class="{ 'bg-green-800 text-white': openTab === 4 }" 
+                                        <button x-on:click="openTab = 4"  :class="{ 'bg-green-800 text-white': openTab === 4 }" 
                                             :class="{ 'bg-green-800 text-white': openTab === 4 }"
                                             class="flex-1 py-3 px-4 rounded-md focus:outline-none border-2 uppercase font-medium focus:shadow-outline-blue transition-all duration-300">Guest</button>
                                     </div>
@@ -262,189 +262,144 @@
         </div>
     </div>
 
-    <script type="text/javascript">
-        $(function() {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    <script>
+        $(document).ready(function() {
+          var tables = [
+            $('#student-table1').DataTable({
+              dom: 'lrtip',
+              processing: true,
+              serverSide: true,
+              ajax: {
+                url: "{{ route('patron') }}?type=student", 
+                type: 'GET'
+              },
+              columns: [
+             
+                { data: 'school_id', name: 'school_id' },
+                { data: 'name', name: 'name' },
+                { data: 'course', name: 'course' },
+                { data: 'sex', name: 'sex' },
+                {
+                  data: 'action',
+                  name: 'action',
+                  orderable: false,
+                  searchable: false
                 }
-            });
+              ]
+            }),
+        
+            $('#faculty-table2').DataTable({
+              dom: 'lrtip',
+              processing: true,
+              serverSide: true,
+              ajax: {
+                url: "{{ route('patron') }}?type=faculty",
+                type: 'GET'
+              },
+              columns: [
+      
+                { data: 'school_id', name: 'school_id' },
+                { data: 'name', name: 'name' },
+                { data: 'sex', name: 'sex' },
+                {
+                  data: 'action',
+                  name: 'action',
+                  orderable: false,
+                  searchable: false
+                }
+              ]
+            }),
 
-   
+            $('#staff-table3').DataTable({
+              dom: 'lrtip',
+              processing: true,
+              serverSide: true,
+              ajax: {
+                url: "{{ route('patron') }}?type=faculty",
+                type: 'GET'
+              },
+              columns: [
+             
+                { data: 'school_id', name: 'school_id' },
+                { data: 'name', name: 'name' },
+                { data: 'sex', name: 'sex' },
+                {
+                  data: 'action',
+                  name: 'action',
+                  orderable: false,
+                  searchable: false
+                }
+              ]
+            }),
 
-            var tables = [
-                $('#student-table1').DataTable({
-                    dom: 'lrtip',
-                    processing: true,
-                    serverSide: true,
-                    ajax: {
-                        url: "{{ route('patron') }}?type=student",
-                        type: 'GET'
-                    },
-                    columns: [{
-                            data: 'school_id',
-                            name: 'school_id'
-                        },
-                        {
-                            data: 'name',
-                            name: 'name'
-                        },
-                        {
-                            data: 'course',
-                            name: 'course'
-                        },
-                        {
-                            data: 'sex',
-                            name: 'sex'
-                        },
-                        {
-                            data: 'action',
-                            name: 'action',
-                            orderable: false,
-                            searchable: false
-                        }
-                        // Add more columns as needed
-                    ]
-                }),
+            $('#guest-table4').DataTable({
+              dom: 'lrtip',
+              processing: true,
+              serverSide: true,
+              ajax: {
+                url: "{{ route('patron') }}?type=guest",
+                type: 'GET'
+              },
+              columns: [
+    
+                { data: 'school_id', name: 'school_id' },
+                { data: 'name', name: 'name' },
+                { data: 'sex', name: 'sex' },
+                {
+                  data: 'action',
+                  name: 'action',
+                  orderable: false,
+                  searchable: false
+                }
+              ]
+            }),
 
-                
-                $('#faculty-table2').DataTable({
-                    dom: 'lrtip',
-                    processing: true,
-                    serverSide: true,
-                    ajax: {
-                        url: "{{ route('patron') }}?type=faculty",
-                        type: 'GET'
-                    },
-                    columns: [{
-                            data: 'school_id',
-                            name: 'school_id'
-                        },
-                        {
-                            data: 'name',
-                            name: 'name'
-                        },
-                        {
-                            data: 'sex',
-                            name: 'sex'
-                        },
-                        {
-                            data: 'action',
-                            name: 'action',
-                            orderable: false,
-                            searchable: false
-                        }
-                        // Add more columns as needed
-                    ]
-                }),
 
-                $('#staff-table3').DataTable({
-                    dom: 'lrtip',
-                    processing: true,
-                    serverSide: true,
-                    ajax: {
-                        url: "{{ route('patron') }}?type=staff",
-                        type: 'GET'
-                    },
-                    columns: [{
-                            data: 'school_id',
-                            name: 'school_id'
-                        },
-                        {
-                            data: 'name',
-                            name: 'name'
-                        },
-                        {
-                            data: 'sex',
-                            name: 'sex'
-                        },
-                        {
-                            data: 'action',
-                            name: 'action',
-                            orderable: false,
-                            searchable: false
-                        }
-                        // Add more columns as needed
-                    ]
-                }),
-                $('#guest-table4').DataTable({
-                    dom: 'lrtip',
-                    processing: true,
-                    serverSide: true,
-                    ajax: {
-                        url: "{{ route('patron') }}?type=guest",
-                        type: 'GET'
-                    },
-                    columns: [{
-                            data: 'school_id',
-                            name: 'school_id'
-                        },
-                        {
-                            data: 'name',
-                            name: 'name'
-                        },
-                        {
-                            data: 'sex',
-                            name: 'sex'
-                        },
-                        {
-                            data: 'action',
-                            name: 'action',
-                            orderable: false,
-                            searchable: false
-                        }
-                        // Add more columns as needed
-                    ]
-                })
-            ];
             
-
-            $('body').on('click', '.deletePatron', function() {
-                var id = $(this).data("id");
-
-                // Use SweetAlert for confirmation
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'You want to delete patron!',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: "DELETE",
-                            url: "{{ url('/deletepatron') }}/" + id,
-                            data: {
-                                _token: '{{ csrf_token() }}'
-                            },
-                            success: function(data) {
-                                for (var i = 0; i < tables.length; i++) {
-                                    tables[i].draw();
-                                }
-                            },
-                            error: function(data) {
-                                console.log('Error:', data);
-                            }
-                        });
+          ];
+      
+          // Event listener for deleting a patron
+          $('body').on('click', '.deletePatron', function() {
+            var id = $(this).data("id");
+      
+            // Use SweetAlert for confirmation
+            Swal.fire({
+              title: 'Are you sure?',
+              text: 'You want to delete patron!',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#d33',
+              cancelButtonColor: '#3085d6',
+              confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                $.ajax({
+                  type: "DELETE",
+                  url: "{{ url('/deletepatron') }}/" + id, 
+                  data: {
+                    _token: '{{ csrf_token() }}'
+                  },
+                  success: function(data) {
+                    for (var i = 0; i < tables.length; i++) {
+                      tables[i].draw();
                     }
+                  },
+                  error: function(data) {
+                    console.log('Error:', data);
+                  }
                 });
+              }
             });
-
-
-
-
-            $('#addNewPatron').click(function() {
+          });
+      
+          $('#addNewPatron').click(function() {
                 $('#saveBtn').val("add-patron");
                 $('#id').val('');
                 $('#patronForm').trigger("reset");
                 $('#ajaxModel').modal('show');
             });
 
-
-            //  CREATE AND FOR UPDATE 
-            $('#saveBtn').click(function(e) {
+          $('#saveBtn').click(function(e) {
                 e.preventDefault();
                 $(this).html('Save');
 
@@ -467,7 +422,6 @@
                         for (var i = 0; i < tables.length; i++) {
                             tables[i].draw();
                         }
-                        // console.log(data)
                     },
                     error: function(data) {
                         console.log('Error:', data);
@@ -475,8 +429,7 @@
                     }
                 });
             });
-
-            //EDIT
+      
             $('body').on('click', '.editPatron', function() {
                 var id = $(this).data('id');
                 $.get("{{ url('/editpatron') }}/" + id, function(data) {
@@ -488,7 +441,6 @@
                         console.error('#ajaxModal element not found');
                     }
 
-                    // Update modal content with fetched data
                     $('#modelHeading').html("Edit Patron");
                     $('#saveBtn').text('Save');
                     $('#saveBtn').val("edit-patron");
@@ -502,9 +454,10 @@
                     $('#type').val(data.type);
                 });
             });
-
+      
+    
         });
-    </script>
+      </script>
 
     </div>
 @endsection
