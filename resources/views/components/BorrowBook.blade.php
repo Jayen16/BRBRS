@@ -1,6 +1,6 @@
 <div x-show="showModal" x-cloak>
     <!-- borrow book modal -->
-    <div x-show="open" x-transition x-cloak
+    <div x-transition x-cloak
         class="fixed inset-0 flex items-center justify-center z-20">
         <div x-cloak class="bg-gray-800 bg-opacity-75 absolute inset-0"></div>
         <div x-cloak class="bg-[#FCFCFF] p-6 rounded-lg z-10 w-1/2 h-auto">
@@ -78,11 +78,11 @@
                 </div>
             </div>
             <div class="flex flex-row justify-end gap-2 mt-2">
-                <button  class="hidden" type="submit" id="borrowBtn"
-                    class="mt-4 bg-green-700 hover:bg-green-800 px-4 py-2 rounded-lg text-white font-medium"> Borrow 
+                <button  type="submit" id="borrowBtn"
+                    class="mt-4 bg-green-700 hover:bg-green-800 px-4 py-2 rounded-lg text-white font-medium"> Transact 
                 
                 </button>
-                <button x-on:click="showModal = false" type="button"
+                <button x-on:click="showModal = false" type="button" id="cancelButton"
                     class="mt-4 bg-red-400 hover:bg-red-500 px-4 py-2 rounded-lg text-white font-medium">Cancel</button>
             </div>
         </form>
@@ -96,79 +96,30 @@
 <script>
 
     $(document).ready(function() {
-
-
-        var status_transaction = $('#modal-title').text();
-        var transaction;
-
-        if (status_transaction === 'Borrow Book') {
-            transaction = 'Borrow';
-        } else if (status_transaction === 'Return Book') {
-            transaction = 'Return';
-        }
-
-
-        // AJAX call triggered by a button click event
-        $('#borrowBtn').on('click', function() {
+       
+        $('#borrow_book_id').off('keydown').on('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
             const bookId = "{{ $bookId }}";
-            var rfidId = $('#borrow_book_id').val().trim();
-
-            $.ajax({
-                url: '/description/' + transaction + '/' + bookId + '/' + rfidId,
-                type: 'GET',
-                success: function(response) {
-                if (response.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: response.success,
-                    });
-
-                    location.reload();
-                    
-                } else if (response.error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: response.error,
-                    });
-                }
-            },
-            });
-        });
-
-
-        // AJAX call triggered by form submission event
-        $('#borrowForm').on('submit', function(e) {
-            e.preventDefault(); // Prevent form submission
-
-            const bookId = "{{ $bookId }}";
-            var rfidId = $('#borrow_book_id').val().trim();
-            var url = '/patron/' + rfidId + '/' + bookId;
-
-            // Check if the form is already being submitted
-            if ($(this).data('submitted') === true) {
-                return; // If already submitted, do nothing
-            }
-
-            // Set data attribute to indicate the form submission
-            $(this).data('submitted', true);
-
-            // Perform an AJAX request to fetch data based on the RFID ID
+            var rfidId = $(this).val().trim();
+            
             if (rfidId !== '') {
                 $.ajax({
-                    url: url,
+                    url: '/patron/' + rfidId + '/' + bookId,
                     type: 'GET',
                     dataType: 'json',
                     success: function(data) {
-                        lagayValueSaInputFields(data);
-                        $('#bookForm').off('submit').submit();
+
+                        if(data.success){
+                            lagayValueSaInputFields(data);
+                        }
+                                
                     },
                     error: function(xhr, status, error) {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
-                            text: 'RFID ID is not existing',
+                            text: 'This RFID ID is not yet registered.',
                         });
                     }
                 });
@@ -177,10 +128,12 @@
                     icon: 'error',
                     title: 'Error!',
                     text: 'RFID ID is empty. Cannot proceed with form submission.',
+                    showConfirmButton: true
                 });
             }
-        });
+        }
     });
+
 
     function lagayValueSaInputFields(data) {
         var date = new Date(data.book.updated_at);
@@ -195,7 +148,69 @@
 
 
 
+});
 
+
+
+    function performTransaction(transaction,bookId, rfidId) {
+        $.ajax({
+            url: '/description/' + transaction + '/' + bookId + '/' + rfidId,
+            type: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.success,
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                        }
+                    });
+                } else if (response.error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: response.error,
+                    });
+                }
+
+            },
+        });
+    }
+
+   
+
+    $('#borrowBtn').off('click').on('click', function() {
+        var status_transaction = $('#modal-title').text();
+        var transaction = (status_transaction === 'Borrow Book') ? 'Borrow' : (status_transaction === 'Return Book') ? 'Return' : '';
+
+        const bookId = "{{ $bookId }}";
+        var rfidId = $('#borrow_book_id').val().trim();
+
+        if (rfidId) {
+            performTransaction(transaction,bookId, rfidId);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'RFID ID is empty. Cannot proceed with transaction.',
+            });
+        }
+    });
+
+
+
+    function clearFormFields() {
+        $('#borrower_name').val('');
+        $('#borrower_type').val('');
+        $('#borrower_book').val('');
+        $('#borrower_time').val('');
+        $('#borrow_book_id').val('');
+    }
+
+    $('#cancelButton').on('click', function() {
+        clearFormFields();
+    });
 
 
 </script>

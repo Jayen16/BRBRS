@@ -45,28 +45,23 @@ class BorrowController extends Controller
     }
 
 
-    public function borrow($transaction,$id,$rfid_id)
+
+
+    public function borrow($transaction, $id, $rfid_id)
     {
-         //  see  if may available
-        // pacheck ung patron kung existing,,, narecord kahit iba rfidid
 
-        $checkIfPatronExists = Patron::where('patron_id',$rfid_id)->exists();
-        $checkIfBookExists = Book::where('id',$id)->exists();
-        // $checkIfBookExists = Book::where('id',$id)->where('status','available')->exists();
 
-        if($checkIfBookExists){
-            // okay pasok, available daw sya
+        if($transaction =='Borrow'){
 
-            if($checkIfPatronExists){
-                //okay pasok, existing ung patron
+            $checkIfBookExists = Book::where('id',$id)
+            ->where('status','available')
+            ->exists();
 
-                $availabilityOfBook =  Book::where('id',$id)->first();
-                // $whoPatron = Patron::where('patron_id',$rfid_id)->first();
 
-                if($availabilityOfBook->status ==='available' && $transaction ==='Borrow'){
-                // kapag hihiram , need add new data sa borrow history, then sa book gawing 'borrowed'
+            $selectedBook =  Book::where('id',$id)->first();
 
-                
+            if($checkIfBookExists && $selectedBook->status ==='available'){
+             
                     $goodToBorrow =Book::where('id', $id)
                     ->update(['status' => 'borrowed']); 
                     
@@ -75,56 +70,78 @@ class BorrowController extends Controller
                         $recordBorrow->book_id = $id; 
                         $recordBorrow->borrower_id = $rfid_id; 
                         $recordBorrow->borrow_status = 'borrowed'; 
+                        $recordBorrow->attending_librarian_id = auth()->user()->id ;
                         $recordBorrow->save();
     
-                    
-                        return response()->json(['success' => 'The book has been borrowed'], 200);
-                    }else{
-                        return response()->json(['error' => 'already borrowed by other patrons'], 400);
-                    }
-        
+                        return response()->json(['success' => 'The book is now borrowed by '.$recordBorrow->borrower->name], 200);
 
-
-                }elseif($availabilityOfBook->status ==='borrowed' && $transaction ==='Return'){
-                    // kapag nireturn , need update sa borrow history, add new data sa return history,  then sa book gawing 'available'
-
-                   
-                   $whoBorrowed= BorrowHistory::where('book_id', $id)
-                    ->where('borrower_id',$rfid_id)
-                    ->update(['borrow_status' => 'returned']); 
-                    
-                    if($whoBorrowed){
-
-                        $recordBorrow = new ReturnHistory();
-                        $recordBorrow->book_id = $id; 
-                        $recordBorrow->borrower_id = $rfid_id; 
-                        $recordBorrow->return_status = 'returned'; 
-                        $recordBorrow->save();
-    
-                        Book::where('id', $id)
-                        ->update(['status' => 'available']); 
-
-                        return response()->json(['success' => 'The book has been returned succesfully'], 200);
                     }else{
 
-                        return response()->json(['error' => 'Wrong Patron'], 400);
+                        return response()->json(['error' => 'already borrowed by other patrons'], 404);
                     }
-                       
-
-                }
-
             }
-                    
-    
 
-        }else{
-            // sorry hindi available
-                return response()->json(['success' => 'The book is not existing'], 400);
+
+
+        }elseif($transaction =='Return'){
+
+            $checkIfBookExists = Book::where('id',$id)
+            ->where('status','borrowed')
+            ->exists();
+
+            $selectedBook =  Book::where('id',$id)->first();
+
+            $checkIfBorrowerExists = BorrowHistory::where('book_id', $id)
+            ->where('borrower_id', $rfid_id)
+            ->where('borrow_status', 'borrowed')
+            ->latest('created_at')
+            ->first();
+
+            if ($checkIfBookExists && $selectedBook->status ==='borrowed' ){
+                // kapag nireturn , need update sa borrow history, add new data sa return history,  then sa book gawing 'available'
+
+                if ($checkIfBorrowerExists->borrower_id === $rfid_id) {
+
+                    $getBorrowId = BorrowHistory::where('book_id', $id)
+                    ->where('borrower_id', $rfid_id)
+                    ->where('borrow_status', 'borrowed')
+                    ->latest('created_at')
+                    ->first();
+                
+                     if ($getBorrowId) {
+
+                            $getBorrowId->update(['borrow_status' => 'returned']);
+                                                
+                            $recordReturn = new ReturnHistory();
+                            $recordReturn->book_id = $id;
+                            $recordReturn->borrow_id = $getBorrowId->id;
+                            $recordReturn->borrower_id = $rfid_id;
+                            $recordReturn->return_status = 'returned';
+                            $recordReturn->attending_librarian_id = auth()->user()->id ;
+                            $recordReturn->save();
+                    
+                            Book::where('id', $id)
+                                ->update(['status' => 'available']);
+                
+                            return response()->json(['success' => 'The book has been returned successfully'], 200);
+
+                        } else {
+                            return response()->json(['error' => 'The book is not currently borrowed'], 404);
+                        }
+
+                    } else {
+                        
+                        return response()->json(['error' => 'This patron is not the last borrower of this book'], 404);
+                    }
+                         
+                    
+             }else{
+                return response()->json(['error' => 'The book is not currently borrowed'], 404);
+             }
+
         }
 
-        
 
-
-    }
+      }
 
 }

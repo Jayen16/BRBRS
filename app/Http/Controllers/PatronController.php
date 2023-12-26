@@ -44,13 +44,15 @@ class PatronController extends Controller
             
             $data = [
                 'patron' => $patron,
-                'book' => $book
+                'book' => $book,
+                'success' => true,
+                'message' => 'Existing patron',
             ];
         
             // Return the combined data as a JSON response
             return response()->json($data);
         } else {
-            return response()->json(['error' => 'Patron or book not found'], 404);
+            return response()->json(['error' => 'Patron is not found'], 404);
         }
         
     }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('book_id');
             $table->string('borrower_id');
             $table->string('borrow_status');
+            $table->string('attending_librarian_id');
             $table->timestamps();
         });
     }

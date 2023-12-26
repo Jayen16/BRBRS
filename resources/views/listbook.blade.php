@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'Books')
 
 @section('nav')
 @endsection
@@ -337,10 +337,6 @@
                     $('#copyright_year').val(data.copyright_year);
                     $('#accession_number').val(data.accession_number);
                     $('#description').val(data.description);
-
-
-                    // var imageUrl = '{{ asset("storage/books") }}' + '/' + data.book_image;
-                    // $('#book-image').attr('src', imageUrl);
 
                     
                 });

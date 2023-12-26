@@ -3,6 +3,7 @@
 use App\Http\Controllers\BooksController;
 use App\Http\Controllers\BorrowController;
 use App\Http\Controllers\BorrowReturnController;
+use App\Http\Controllers\DashboardContent;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\PatronController;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +34,7 @@ Auth::routes();
 
 Route::middleware(['librarian'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'index'])->name('dashboard');
-
+    Route::get('/dashboard/content', [DashboardContent::class, 'content'])->name('dashboard.content'); // dito na kunin pang display sa dashboard
 
     Route::get('/listbooks', [BooksController::class, 'index'])->name('listbooks'); 
     Route::post('/addbooks', [BooksController::class, 'store'])->name('addbooks'); 
@@ -56,8 +57,19 @@ Route::middleware(['librarian'])->group(function () {
     Route::get('/description/{transaction}/{id}/{patron_id}', [BorrowController::class, 'borrow'])->name('borrow');
     Route::get('/borrowing/history', [BorrowReturnController::class, 'index'])->name('historybooks');
     Route::get('/history/book/{id}', [BorrowReturnController::class, 'show'])->name('displayhistory');
-    Route::get('/history', [BorrowReturnController::class, 'displayHistory'])->name('BorrowHistory');
-    Route::get('/history/search', [BorrowReturnController::class, 'search'])->name('SearchHistory');
+    
+    Route::get('/history/borrow', [BorrowReturnController::class, 'displayBorrow'])->name('BorrowHistory');
+    Route::get('/history/return', [BorrowReturnController::class, 'displayReturn'])->name('ReturnHistory');
+
+
+    //GENERATE using PDF/DOMPDF (ayaw tumanggap ng javascript dito pag html na)...Datatable nalang may feature na PDF button
+
+    // Route::get('/history/borrow/pdf', [BorrowReturnController::class, 'generateBorrowHistory'])->name('borrowPDF');
+    // Route::get('/history/borrow/fetch', [BorrowReturnController::class, 'fetchBorrowHistory'])->name('fetchBorrowHistory');
+
+    // Route::get('/history/return/pdf', [BorrowReturnController::class, 'generateReturnHistory'])->name('returnPDF');
+
+
 });
 
 

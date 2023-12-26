@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('return_histories', function (Blueprint $table) {
             $table->id();
             $table->string('book_id');
+            $table->string('borrow_id');
             $table->string('borrower_id');
-            $table->string('return_status');
+            $table->string('attending_librarian_id');
             $table->timestamps();
         });
     }

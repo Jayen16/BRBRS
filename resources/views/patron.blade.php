@@ -1,6 +1,5 @@
 @extends('layouts.app')
-
-
+@section('title', 'Patron')
 @section('nav')
 @endsection
 
@@ -262,8 +261,24 @@
         </div>
     </div>
 
+  
     <script>
         $(document).ready(function() {
+
+        if ($.fn.DataTable.isDataTable('#student-table1')) {
+        $('#student-table1').DataTable().destroy();
+         }
+       if ($.fn.DataTable.isDataTable('#faculty-table2')) {
+           $('#faculty-table2').DataTable().destroy();
+       }
+       if ($.fn.DataTable.isDataTable('#staff-table3')) {
+           $('#staff-table3').DataTable().destroy();
+       }
+       if ($.fn.DataTable.isDataTable('#guest-table4')) {
+           $('#guest-table4').DataTable().destroy();
+       }
+
+        
           var tables = [
             $('#student-table1').DataTable({
               dom: 'lrtip',

@@ -1,6 +1,5 @@
 @extends('layouts.app')
-
-
+@section('title', 'History')
 @section('nav')
 @endsection
 
@@ -24,14 +23,14 @@
                                     class="flex-1 py-3 px-4 rounded-md focus:outline-none border-2 uppercase font-medium focus:shadow-outline-blue transition-all duration-300">Returned</button>
                             </div>
 
-                            <div x-show="openTab === 1"
-                                class="w-full shadow-md mt-1 overflow-y-auto max-h-[70vh]">
+                            <div x-show="openTab === 1" >
+                                <div  class="w-full shadow-md mt-1 overflow-y-auto max-h-[70vh]">
                                 <!-- Search bar -->
                                 <div class="flex items-center my-4">
                                     <div class="w-full relative mx-auto text-gray-600">
                                         <input
                                             class=" w-full border-2 bg-white h-10 px-5 rounded-md text-lg focus:outline p-6"
-                                            type="text" name="search" id="search_history" placeholder="Search here...">
+                                            type="search" name="search" placeholder="Search here..." id="searchInput">
                                         <button type="submit" class="absolute right-0 top-0 mt-4 mr-4">
                                             <svg class="text-gray-600 h-4 w-4 fill-current"
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -45,7 +44,11 @@
                                         </button>
                                     </div>
                                 </div>
-                                <table class="w-full bg-white border border-gray-200 rounded-md shadow-md mt-2">
+                                <div class="float-right">
+                                    <button id='downloadPDF' class="bg-green-700 rounded p-3 text-white"> History PDF </button>
+                             
+                                </div>
+                                <table class="w-full bg-white border border-gray-200 rounded-md shadow-md mt-2" id="borrow-table">
                                     <thead class="bg-green-800 text-white text-left sticky top-0 z-10">
                                         <tr class="bg-green-800 text-white text-center">
                                             <th class="py-3 px-8 border-b border-gray-200 w-[16rem] rounded-tl">
@@ -66,11 +69,16 @@
                                         </tr>
                                     </thead>
 
-                                    <tbody id="historyTableBody">
-                                       
+                                    <tbody id="tableBody">
+                                        <tr id="noRecordsMessage" class="text-center ">
+                                            <td class="py-8 px-8 border-b border-gray-200 text-gray-500"
+                                                colspan="5">
+                                                No existing records found.
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
-                              
+                            </div>
                             </div>
 
                             <div x-show="openTab === 2"
@@ -80,7 +88,7 @@
                                     <div class="w-full relative mx-auto text-gray-600">
                                         <input
                                             class=" w-full border-2 bg-white h-10 px-5 rounded-md text-lg focus:outline p-6"
-                                            type="text" name="search"  placeholder="Search here...">
+                                            type="search" name="search" placeholder="Search here..." id="searchReturnInput">
                                         <button type="submit" class="absolute right-0 top-0 mt-4 mr-4">
                                             <svg class="text-gray-600 h-4 w-4 fill-current"
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -94,7 +102,7 @@
                                         </button>
                                     </div>
                                 </div>
-                                <table class="w-full bg-white border border-gray-200 rounded-md shadow-md mt-2">
+                                <table class="w-full bg-white border border-gray-200 rounded-md shadow-md mt-2" id="return-table">
                                     <thead class="bg-green-800 text-white text-left sticky top-0 z-10">
                                         <tr class="bg-green-800 text-white text-center">
                                             <th class="py-3 px-8 border-b border-gray-200 w-[16rem] rounded-tl">
@@ -118,13 +126,36 @@
                                         </tr>
                                     </thead>
 
-                                    <tbody id="historyTableBodyReturned">
-                                       
-                                       
-
+                                    <tbody id="tableBodyReturned">
+                                        <tr id="noRecordsMessageReturned" class="text-center ">
+                                            <td class="py-8 px-8 border-b border-gray-200 text-gray-500"
+                                                colspan="5">
+                                                No existing records found.
+                                            </td>
+                                        </tr>
+                                        <tr class="text-center">
+                                            <td class="py-2 px-8 border-b border-gray-200 font-semibold">
+                                                <a href="#" class="clickable-cell">7881652752</a>
+                                            </td>
+                                            <td class="py-2 px-8 border-b border-gray-200 font-semibold">
+                                                <a href="#" class="clickable-cell">346457282</a>
+                                            </td>
+                                            <td class="py-2 px-8 border-b border-gray-200">
+                                                <a href="#" class="clickable-cell">Juan dela Cruz</a>
+                                            </td>
+                                            <td class="py-2 px-8 border-b border-gray-200">
+                                                <a href="#" class="clickable-cell">Student</a>
+                                            </td>
+                                            <td class="py-2 px-8 border-b border-gray-200">
+                                                <a href="#" class="clickable-cell">Atomic Habits</a>
+                                            </td>
+                                            <td class="py-2 px-8 border-b border-gray-200">
+                                                <a href="#" class="clickable-cell">11-28-2023</a>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
-                            </div>                      
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -139,70 +170,141 @@
 
 </div>
 
+<!-- Include jsPDF library -->
 
-<script>
-      $(document).ready(function() {
 
-          $.ajax({
-            url: '/history',
+<script type="text/javascript">
+   $(function() {
+
+ 
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    var borrowTable = $('#borrow-table').DataTable({
+    dom: 'lrtip',
+    processing: true,
+    serverSide: true,
+    ajax: {
+        url: "{{ route('BorrowHistory') }}",
+        type: 'GET',
+        data: function (d) {
+            d.search = $('#searchInput').val(); 
+        }
+    },
+    columns: [
+        { data: 'id', name: 'id' },
+        { data: 'patron_name', name: 'patron_name', render: function(data) {
+            return capitalizeFirstLetter(data); 
+        }},
+        { data: 'patron_type', name: 'patron_type', render: function(data) {
+            return capitalizeFirstLetter(data);
+        }},
+        { data: 'book_title', name: 'book_title', render: function(data) {
+            return capitalizeFirstLetter(data); 
+        }},
+        { data: 'created_at', name: 'created_at', render: function(data) {
+            return formatDate(data); 
+        }}
+    ],
+    columnDefs: [
+        {
+            targets: [1, 2, 3], 
+            render: function(data) {
+                return capitalizeFirstLetter(data); 
+            }
+        },
+        {
+            targets: 4, 
+            render: function(data) {
+                return formatDate(data);
+            }
+        }
+    ],  buttons: [
+            'print'
+        ]
+  
+});
+
+
+var returnTable = $('#return-table').DataTable({
+        dom: 'lrtip',
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ route('ReturnHistory') }}",
             type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                var historyArray = response.data;
-
-                console.log(historyArray);
-                $('#historyTableBody').empty();
-
-                if (historyArray.length === 0) {
-
-                    var noHistoryRow = $('<tr class="text-center"><td colspan="5" class="p-3 border-b border-gray-200">No history of Borrowing</td></tr>');
-                     $('#historyTableBody').append(noHistoryRow);
-
-              } else {
-
-                historyArray.forEach(function(historyItem) {
-                    var tableRow = $('<tr class="text-center">' +
-                        '<td class="py-1 px-8 border-b border-gray-200 font-semibold"><p class="history_borrower_no"></p></td>' +
-                        '<td class="py-1 px-8 border-b border-gray-200"><p class="history_borrower_name"></p></td>' +
-                        '<td class="py-1 px-8 border-b border-gray-200"><p class="history_borrower_type"></p></td>' +
-                        '<td class="py-1 px-8 border-b border-gray-200"><p class="history_borrow_status"></p></td>' +
-                        '<td class="py-1 px-8 border-b border-gray-200"><p class="history_borrower_returned"></p></td>' +
-                        '</tr>');
-
-                    // Set the text content of each cell in the new row
-
-                    //CAPITALIZE LANG FIRST LETTER
-                    var status = historyItem.borrow_status.toLowerCase();
-                    status = status.charAt(0).toUpperCase() + status.slice(1);
-
-                    tableRow.find('.history_borrower_no').text(historyItem.borrower_id);
-                    tableRow.find('.history_borrower_name').text(historyItem.borrower.name);
-                    tableRow.find('.history_borrower_type').text(historyItem.borrower.type);
-                    tableRow.find('.history_borrow_status').text(status);
-                    tableRow.find('.history_borrower_returned').text(formatDate(historyItem.created_at));
-
-                    // Append the new row to the table body
-                    $('#historyTableBody').append(tableRow);
-                });
-
-                
-
+            data: function (d) {
+                d.search = $('#searchReturnInput').val(); 
             }
-
-        
+        },
+        columns: [
+            { data: 'id', name: 'id' },
+            { data: 'borrow_id', name: 'borrow_id'},
+            { data: 'patron_name', name: 'patron_name', render: function(data) {
+                return capitalizeFirstLetter(data); 
+            }},
+            { data: 'patron_type', name: 'patron_type', render: function(data) {
+                return capitalizeFirstLetter(data);
+            }},
+          
+            { data: 'book_title', name: 'book_title', render: function(data) {
+                return capitalizeFirstLetter(data); 
+            }},
+            { data: 'created_at', name: 'created_at', render: function(data) {
+                return formatDate(data); 
+            }}
+        ],
+        columnDefs: [
+            {
+                targets: [2,3,4], 
+                render: function(data) {
+                    return capitalizeFirstLetter(data); 
+                }
             },
-            error: function(xhr, status, error) {
-                console.error(xhr.responseText);
-            }
+            {
+                targets: 5, 
+                render: function(data) {
+                    return formatDate(data);
+                }
+        }
+    ],
+    buttons: [
+        'pdf'
+    ]
+});
+
+    // Event listener for the search input
+        $('#searchInput').on('keyup', function() {
+            borrowTable.search($(this).val()).draw(); // Trigger search and redraw the table
         });
 
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
-            return date.toLocaleDateString('en-US', options);
-        }
-    });
+        $('#searchReturnInput').on('keyup', function() {
+            returnTable.search($(this).val()).draw(); // Trigger search and redraw the return table
+        });
+
+
+
+    function capitalizeFirstLetter(str) {
+        return str.replace(/\b\w/g, function(match) {
+            return match.toUpperCase();
+        });
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+        return date.toLocaleDateString('en-US', options);
+    }
+});
+
+
+
 </script>
+
+
 
 @endsection

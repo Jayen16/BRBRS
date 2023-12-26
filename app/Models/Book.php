@@ -16,11 +16,14 @@ class Book extends Model
     protected $guarded = [];
 
 
-    public function bookhistory()
+    public function bookBorrowhistory()
     {
         return $this->belongsTo(BorrowHistory::class, 'id', 'book_id');
     }
 
-
+    public function bookReturnhistory()
+    {
+        return $this->belongsTo(ReturnHistory::class, 'id', 'book_id');
+    }
 
 }

@@ -1,6 +1,4 @@
 @extends('layouts.app')
-
-
 @section('nav')
 @endsection
 
@@ -158,20 +156,38 @@
 
 
 <script>
+
+
+
     $(document).ready(function() {
-        var bookId = {{ $id }}; // Make sure $id exists and is passed correctly
-        var apiUrl = '/description/book/' + bookId; // Replace with your API endpoint
+
+        
+        function fetchBookDetails() {
+            var bookId = {{ $id }}; // Make sure $id exists and is passed correctly
+            var apiUrl = '/description/book/' + bookId; // Replace with your API endpoint
 
         $.ajax({
             url: apiUrl,
             type: 'GET',
             dataType: 'json',
             success: function(response) {
-        
-                var selectedBook = response.book;
-                
+      
+                updateBookDetails(response.book);       
+  
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+        }
+
+        function updateBookDetails(selectedBook) {
+
+                 
                 // Populate HTML elements with book details
                 $('#book-title').text(selectedBook.title);
+                document.title = $('#book-title').text(); // title ng page
+
                 $('#book-location_rack').text(selectedBook.location_rack);
                 $('#book-edition').text(selectedBook.edition)
                 $('#book-author').text(selectedBook.author);
@@ -182,6 +198,8 @@
                 $('#book-isbn').text(selectedBook.isbn);
 
                 $('#book-main-title').text(selectedBook.title);
+
+
                 $('#book-description').text(selectedBook.description);
 
                 //CAPITALIZE LANG FIRST LETTER
@@ -190,9 +208,14 @@
 
                 $('#book-status').text(book_status);
 
-                var imageUrl = '{{ asset("storage/books") }}' + '/' + selectedBook.book_image;
-                $('#book-image').attr('src', imageUrl);
-               
+              
+                if(selectedBook.book_image){
+                    var imageUrl = '{{ asset("storage/books") }}' + '/' + selectedBook.book_image;
+                    $('#book-image').attr('src', imageUrl);
+                }else{
+                    var defaultUrl = '{{ asset("storage/books") }}' + '/default-bookcover.jpg';
+                    $('#book-image').attr('src', defaultUrl);
+                }
                 
                 if (selectedBook.status === 'borrowed') {
                     $('#status_button').text("Return");
@@ -200,23 +223,29 @@
                 } else if (selectedBook.status === 'available') {
                     $('#status_button').text("Borrow");
                 }
-               
-  
-            },
-            error: function(xhr, status, error) {
-                console.error(xhr.responseText);
-            }
-        });
+        }
 
 
 
-        $.ajax({
-            url: '/history/book/{{ $id }}',
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                var historyArray = response.data;
+        function fetchBorrowingHistory() {
+            $.ajax({
+                url: '/history/book/{{ $id }}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    var reversedData = response.data.reverse();
+                    updateBorrowingHistory(reversedData);
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
 
+
+
+        function updateBorrowingHistory(historyArray) {
+    
                 // console.log(historyArray);
                 $('#tableBody').empty();
 
@@ -254,14 +283,8 @@
 
             }
 
-        
-            },
-            error: function(xhr, status, error) {
-                console.error(xhr.responseText);
-            }
-        });
+        }
 
-        
 
         function formatDate(dateString) {
         const date = new Date(dateString);
@@ -270,21 +293,21 @@
     }
 
 
+        fetchBookDetails();
+        fetchBorrowingHistory();
+
+        $('#borrowForm').on('submit', function(e) {
+            e.preventDefault();
+
+            fetchBookDetails();
+            fetchBorrowingHistory();
+        });
+
     });
 
 
 
 </script>
 
-<script>
 
-
-    // purpose nito ay para hindi magsara ung modal... pag nagsusubmit kasi automatic close ung modal
-    $('#borrowForm').on('submit', function(e) {
-        e.preventDefault(); 
-    });
-
-
-
-</script>
 @endsection
