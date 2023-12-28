@@ -3,6 +3,7 @@
 use App\Http\Controllers\BooksController;
 use App\Http\Controllers\BorrowController;
 use App\Http\Controllers\BorrowReturnController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardContent;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\PatronController;
@@ -46,6 +47,7 @@ Route::middleware(['librarian'])->group(function () {
     // Route::post('/books/update', [BookController::class, 'store'])->name('updatebook');
     
     Route::get('/patron', [PatronController::class, 'index'])->name('patron');
+    Route::get('/patron/display', [PatronController::class, 'displayPatrons'])->name('PatronsList');
     Route::get('/editpatron/{id}', [PatronController::class, 'edit'])->name('editpatron');
     Route::post('/addpatrons', [PatronController::class, 'store'])->name('addpatrons');
     Route::delete('/deletepatron/{id}', [PatronController::class, 'destroy'])->name('deletepatron'); 
@@ -55,18 +57,20 @@ Route::middleware(['librarian'])->group(function () {
     Route::get('/description/book/{id}', [BorrowController::class, 'show'])->name('description');
     Route::get('/description/{id}', [BorrowController::class, 'displayshow'])->name('displaydescription');
     Route::get('/description/{transaction}/{id}/{patron_id}', [BorrowController::class, 'borrow'])->name('borrow');
+
     Route::get('/borrowing/history', [BorrowReturnController::class, 'index'])->name('historybooks');
     Route::get('/history/book/{id}', [BorrowReturnController::class, 'show'])->name('displayhistory');
-    
     Route::get('/history/borrow', [BorrowReturnController::class, 'displayBorrow'])->name('BorrowHistory');
     Route::get('/history/return', [BorrowReturnController::class, 'displayReturn'])->name('ReturnHistory');
 
+    Route::get('/category/display', [CategoryController::class, 'displayCategory'])->name('CategoryList');
+    Route::delete('/delete/category/{category}', [CategoryController::class, 'deleteCategory'])->name('category.delete');
+    Route::post('/add/category', [CategoryController::class, 'addCategory'])->name('category.add');
 
     //GENERATE using PDF/DOMPDF (ayaw tumanggap ng javascript dito pag html na)...Datatable nalang may feature na PDF button
 
     // Route::get('/history/borrow/pdf', [BorrowReturnController::class, 'generateBorrowHistory'])->name('borrowPDF');
     // Route::get('/history/borrow/fetch', [BorrowReturnController::class, 'fetchBorrowHistory'])->name('fetchBorrowHistory');
-
     // Route::get('/history/return/pdf', [BorrowReturnController::class, 'generateReturnHistory'])->name('returnPDF');
 
 

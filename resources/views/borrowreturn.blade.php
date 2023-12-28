@@ -187,6 +187,7 @@
     dom: 'lrtip',
     processing: true,
     serverSide: true,
+    autoWidth: false,
     ajax: {
         url: "{{ route('BorrowHistory') }}",
         type: 'GET',
@@ -233,6 +234,7 @@ var returnTable = $('#return-table').DataTable({
         dom: 'lrtip',
         processing: true,
         serverSide: true,
+        autoWidth: false,
         ajax: {
             url: "{{ route('ReturnHistory') }}",
             type: 'GET',

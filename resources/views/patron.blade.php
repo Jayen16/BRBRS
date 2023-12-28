@@ -284,8 +284,9 @@
               dom: 'lrtip',
               processing: true,
               serverSide: true,
+              autoWidth: false,
               ajax: {
-                url: "{{ route('patron') }}?type=student", 
+                url: "{{ route('PatronsList') }}?type=student", 
                 type: 'GET'
               },
               columns: [
@@ -307,8 +308,9 @@
               dom: 'lrtip',
               processing: true,
               serverSide: true,
+              autoWidth: false, 
               ajax: {
-                url: "{{ route('patron') }}?type=faculty",
+                url: "{{ route('PatronsList') }}?type=faculty",
                 type: 'GET'
               },
               columns: [
@@ -329,8 +331,9 @@
               dom: 'lrtip',
               processing: true,
               serverSide: true,
+              autoWidth: false, 
               ajax: {
-                url: "{{ route('patron') }}?type=faculty",
+                url: "{{ route('PatronsList') }}?type=staff",
                 type: 'GET'
               },
               columns: [
@@ -351,8 +354,9 @@
               dom: 'lrtip',
               processing: true,
               serverSide: true,
+              autoWidth: false, 
               ajax: {
-                url: "{{ route('patron') }}?type=guest",
+                url: "{{ route('PatronsList') }}?type=guest",
                 type: 'GET'
               },
               columns: [

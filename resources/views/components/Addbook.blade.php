@@ -1,6 +1,6 @@
 <div x-show="showModal" x-cloak>
     <!-- add book modal -->
-    <div x-show="open" x-transition x-cloak
+    <div x-transition x-cloak
         class="fixed inset-0 flex items-center justify-center z-20">
         <div x-cloak class="bg-white p-6 rounded-lg z-10 w-1/2 h-[75vh]">
             <h2 id="modelHeading"
@@ -35,16 +35,9 @@
                                 <select id="category" name="category" 
                                     class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"
                                     required>
-                                    <option selected disabled placeholder="select option">select
-                                        category</option>
-                                    <option value="Fiction">Fiction</option>
-                                    <option value="Non-Fiction">Non-Fiction</option>
-                                    <option value="Children's Book">Children's Book</option>
-                                    <option value="Reference">Reference</option>
-                                    <option value="Fiction">Fiction</option>
-                                    <option value="Periodicals">Periodicals</option>
-                                    <option value="Special collections">Special collections</option>
+                                    <option selected disabled placeholder="select option">Select category</option>
                                 </select>
+                            
                             </div>
                             <div class="w-1/4 px-3 mb-2">
                                 <label
@@ -100,7 +93,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <input type="file" accept="image/jpeg, image/png" id="book_image" name="book_image" onchange="previewImage(event)" class="hidden">
+                                        <input type="file" accept="image/jpeg, image/png" id="book_image" name="book_image" value="default-bookcover.jpg" onchange="previewImage(event)" class="hidden">
                                         <label class="text-black text-sm px-3 py-1 rounded-md bg-gray-300 hover:bg-gray-400 hover:text-white" for="book_image">
                                             Upload Image
                                         </label>

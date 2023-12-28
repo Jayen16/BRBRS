@@ -10,8 +10,14 @@ use Yajra\DataTables\Facades\DataTables;
 
 class PatronController extends Controller
 {
-    public function index(Request $request)
+
+    public function index()
     {
+        return view('patron');
+
+    }
+
+    public function displayPatrons(Request $request){
         if ($request->ajax()) {
             $type = $request->input('type');
             $data = Patron::where('type', $type)->latest()->get(); 
@@ -24,14 +30,14 @@ class PatronController extends Controller
                     })
                     ->rawColumns(['action'])
                     ->make(true);
-        }
-        $students = Patron::where('type', 'student')->latest()->get(); 
-        $faculties = Patron::where('type', 'faculty')->latest()->get();
-        $staffs = Patron::where('type', 'staff')->latest()->get();
-        $guests = Patron::where('type', 'guest')->latest()->get();
-
-        return view('patron', compact('students', 'faculties', 'staffs', 'guests'));
-
+        } 
+        $data = [
+            'students' => Patron::where('type', 'student')->latest()->get(),
+            'faculty' => Patron::where('type', 'faculty')->latest()->get(),
+            'staff' => Patron::where('type', 'staff')->latest()->get(),
+            'guests' => Patron::where('type', 'guest')->latest()->get()
+        ];
+        return response()->json($data);
     }
 
 

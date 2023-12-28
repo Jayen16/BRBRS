@@ -41,39 +41,36 @@ class BooksController extends Controller
 
 
     public function show($category)
-    {
-        
-      // Check if the selected category exists in the database
-      if ($category === null || $category == 'All Categories') {
-        $books = Book::all(); // Retrieve all books if category is null or 'All Categories'
-    } else {
-        $categoryExists = Book::where('category', $category)->exists();
-    
-        if (!$categoryExists) {
-            $books = collect(); // Return an empty collection if the category doesn't exist
+        {
+            
+        // Check if the selected category exists in the database
+        if ($category === null || $category == 'All Categories') {
+            $books = Book::all(); // Retrieve all books if category is null or 'All Categories'
         } else {
-            $books = Book::where('category', $category)->get();
-        }
-    }
-    
-    return DataTables::of($books)
-        ->addIndexColumn()
-        ->addColumn('action', function ($row) {
-            $btn = '<button x-on:click="showModal = true" href="javascript:void(0)" id="createNewBook" data-toggle="tooltip" data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook">Edit</button>';
-    
-            $btn .= ' <button href="javascript:void(0)" data-toggle="tooltip" data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</button>';
-    
-            $btn .= ' <a href="/description/'.$row->id.'" data-toggle="tooltip" data-id="'.$row->id.'" data-original-title="Borrow" class="btn btn-warning btn-sm borrowBook">Transaction</a>';
-    
-            return $btn;
-        })
-        ->rawColumns(['action'])
-        ->make(true);
-    
-      
+            $categoryExists = Book::where('category', $category)->exists();
         
+            if (!$categoryExists) {
+                $books = collect(); // Return an empty collection if the category doesn't exist
+            } else {
+                $books = Book::where('category', $category)->get();
+            }
+        }
+        
+        return DataTables::of($books)
+            ->addIndexColumn()
+            ->addColumn('action', function ($row) {
+                $btn = '<button x-on:click="showModal = true" href="javascript:void(0)" id="createNewBook" data-toggle="tooltip" data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook">Edit</button>';
+        
+                $btn .= ' <button href="javascript:void(0)" data-toggle="tooltip" data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</button>';
+        
+                $btn .= ' <a href="/description/'.$row->id.'" data-toggle="tooltip" data-id="'.$row->id.'" data-original-title="Borrow" class="btn btn-warning btn-sm borrowBook">Transaction</a>';
+        
+                return $btn;
+            })
+            ->rawColumns(['action'])
+            ->make(true);  
 
-    }
+        }
 
 
     public function store(Request $request)
@@ -107,6 +104,10 @@ class BooksController extends Controller
         
             $uploadedImage->storeAs($storagePath, $newFileName, 'public');
         
+            $validatedData['book_image'] = $newFileName;
+        }else{
+
+            $newFileName = 'default-bookcover.jpg';
             $validatedData['book_image'] = $newFileName;
         }
         

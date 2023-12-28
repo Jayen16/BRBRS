@@ -10,36 +10,37 @@
         <div class="flex w-full mt-2 py-10 h-[90vh]">
             <div class="flex w-full mx-32 gap-12">
                 <!-- Categories  -->
-                <div class="flex flex-col w-1/4 h-full items-center border border-1 border-gray-300 rounded-md bg-white">
+                <div x-data="{ showCategoryModal: false }" class="flex flex-col w-1/4 h-full items-center border border-1 border-gray-300 rounded-md bg-white">
                     <p
                         class="font-lg text-xl font-bold text-gray-100 uppercase tracking-wider bg-green-800 w-full text-center py-3 rounded-t-md">
                         Book Categories
                     </p>
                     <div class="w-full max-h-[75vh] overflow-y-auto">
+                 
                         <ul class="justify-center font-medium text-lg px-2 py-0 text-left">
                             <a href="{{route('showcategory', 'All Categories')}}" class= "category-link w-full md:w-auto" data-category="All Categories">
                                 <li class="hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left mt-4">
                                     All
                                 </li>
-                            </a>
-                            <a href="{{route('showcategory', 'Fiction')}}" class= "category-link w-full md:w-auto" data-category="Fiction">
-                                <li class="hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left mt-4">
-                                    Fiction
-                                </li>
-                            </a>
-                        
-                            <a href="{{route('showcategory', 'Non-Fiction')}}" class="category-link w-full md:w-auto" data-category="Non-Fiction">
-                                <li class="hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left">
-                                    Non-Fiction
-                                </li>
-                            </a>
-                            <a href="{{route('showcategory', 'Reference')}}" class="category-link w-full md:w-auto" data-category="Reference">
-                                <li class="hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left">
-                                    Reference
-                                </li>
-                            </a>
+                            </a>                    
                         </ul>
+                        <ul class="categoryClass justify-center font-medium text-lg px-2 py-0 text-left">
+                            <a class= "category-link">                             
+                            </a>                    
+                        </ul>
+
                     </div>
+
+                    <div class="mb-4 flex justify-end" id="categoryModal">
+
+                        <button x-on:click="showCategoryModal = true" href="javascript:void(0)" id="insertNewCategory"
+                            class="bg-green-800 hover:bg-green-800 p-3 rounded-md text-white font-medium mt-4">New Category
+                        </button>
+
+                        <x-Categories/>                        
+
+                    </div>
+
                 </div>
 
                 <!-- Start Right Column -->
@@ -134,10 +135,152 @@
 
 <script type="text/javascript">
 
+            //DISPLAY DYNAMIC CATEGORY FROM DATABASE SA GILID TO BOOK CATEGORIES 
+            function fetchCategoriesAndPopulate() {
+            $.ajax({
+                url: '{{ route("CategoryList") }}',
+                method: 'GET',
+                success: function(response) {
+
+                    var categories = response.categories;
+
+                    var categoryContainer = $('.categoryClass');
+                    var categoryModalList = $('.categoryModalList');
+
+                    //NEED TO PARA MACLEAR AND DISPLAY UPDATED DATA ULI
+                    categoryContainer.empty();
+
+                    categories.forEach(function(category) {
+                        var categoryLink = $('<a>')
+                            .attr('href', '{{ route("showcategory", ":category") }}'.replace(':category', category))
+                            .addClass('category-link w-full md:w-auto')
+                            .attr('data-category', category);
+
+                        var listItem = $('<li>')
+                            .addClass('hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left')
+                            .text(category);
+
+                        categoryLink.append(listItem);
+                        categoryContainer.append(categoryLink);
+                    });
+
+       
+                },
+                error: function(error) {
+                    console.error('Error fetching categories:', error);
+                }
+            });
+            }
+
+            //PANG DISPLAY WITHOUT REFRESHING THE PAGE , CATEGORY LIST SA MODAL TO
+            function updateCategoryModalList() {
+            $.ajax({
+                url: '{{ route("CategoryList") }}',
+                method: 'GET',
+                success: function(response) {
+                    var categories = response.categories;
+
+                    $('#categoryListContainer').empty(); // Clear previous categories
+
+                    categories.forEach(function(category) {
+                        var categoryItem = $('<div>')
+                            .addClass('flex flex-row justify-between border border-gray-200 rounded-lg p-2 mb-3');
+
+                        var categoryName = $('<label>')
+                            .text(category)
+                            .addClass('w-2/3 px-3');
+
+                        var deleteLink = $('<a>')
+                            .addClass('delete-category')
+                            .data('category', category)
+                            .attr('href', '#');
+
+                        var deleteButtonContent =
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">' +
+                            '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>' +
+                            '<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>' +
+                            '</svg>';
+
+                        deleteLink.html(deleteButtonContent);
+
+                        categoryItem.append(categoryName, deleteLink);
+                        $('#categoryListContainer').append(categoryItem);
+                    });
+
+                    // Attach delete functionality
+                    $('.delete-category').on('click', function(e) {
+                        e.preventDefault();
+                        var deleteLink = $(this);
+                        var categoryToDelete = deleteLink.data('category');
+
+                        $.ajax({
+                            url: '/delete/category/' + categoryToDelete,
+                            method: 'DELETE',
+                            success: function(deleteResponse) {
+                                console.log(`Category '${categoryToDelete}' deleted successfully.`);
+                                deleteLink.closest('.flex').remove(); // Remove deleted category
+                            },
+                            error: function(deleteError) {
+                                console.error('Error deleting category:', deleteError);
+                            }
+                        });
+                    });
+                },
+                error: function(error) {
+                    console.error('Error fetching categories:', error);
+                }
+            });
+            }
+
+
+            function deleteCategory(categoryToDelete) {
+                $.ajax({
+                    url: '/delete/category/' + categoryToDelete,
+                    method: 'DELETE',
+                    success: function(deleteResponse) {
+                        console.log(`Category '${categoryToDelete}' deleted successfully.`);
+                        fetchCategoriesAndPopulate();
+                    },
+                    error: function(deleteError) {
+                        console.error('Error deleting category:', deleteError);
+                    }
+                });
+            }
+
+            var table;
+
+            $(document).ready(function() {         
+
+                fetchCategoriesAndPopulate();
+                updateCategoryModalList();
+
+  
+            });
 
 
 
-         //DISPLAY DATA FROM API
+            //CATEGORY OPTION SA MODAL, PAMIMILIAN
+            $.ajax({
+                url: '/category/display', 
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+
+                    var categories = response.categories; 
+
+                    categories.forEach(function(category) {
+
+                        // Category list sa add book ito
+                        $('#category').append('<option value="' + category + '">' + category + '</option>');           
+                            
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(error); 
+                }
+            });
+
+         //DISPLAY DATA FROM API FOR DATATABLE
         $(function() {
             $.ajaxSetup({
                 headers: {
@@ -154,29 +297,23 @@
                     type: 'GET'
                 },
                 columns: [{
-                        data: 'isbn',
-                        name: 'isbn'
+                        data: 'isbn',  name: 'isbn'
                     },
                     {
-                        data: 'title',
-                        name: 'title'
+                        data: 'title',  name: 'title'
                     },
                     {
-                        data: 'publisher',
-                        name: 'publisher'
+                        data: 'publisher',  name: 'publisher'
                     },
                     {
-                        data: 'location_rack',
-                        name: 'location_rack'
+                        data: 'location_rack',  name: 'location_rack'
                     },
                     {
-                        data: 'status',
-                        name: 'status'
+                        data: 'status', name: 'status'
                     },
                     {
                         data: 'action', name: 'action', orderable: false, searchable: false
                     },
-                    // Add more columns as needed
                 ],
 
          
@@ -188,17 +325,15 @@
             });
 
 
-            // After DataTables retrieves data, populate the table body with rows
-            table.on('xhr', function() {
-                var data = table.ajax.json().data; // Retrieve the data from the DataTable
+                   
 
-                // Clear previous rows
+            table.on('xhr', function() {
+                var data = table.ajax.json().data; 
+
                 $('#tableBody').empty();
 
-                // Loop through the data and populate table rows dynamically
                 $.each(data, function(index, item) {
-
-            
+           
                     var newRow = '<tr class="text-center">' +
                         '<td class="py-2 px-8 border-b border-gray-200 font-weight-bold">' + item
                         .isbn + '</td>' +
@@ -209,17 +344,30 @@
                         '<td class="py-2 px-8 border-b border-gray-200">' + item.status + '</td>' +
                         '</tr>';
 
-                    $('#tableBody').append(newRow); // Append each row to the table body
+                    $('#tableBody').append(newRow); 
                 });
 
             });
 
 
-            //DELETE
+            $(document).on('click', '.category-link', function(e) {
+                e.preventDefault();
+                var category = $(this).data('category');
+
+                if (table) {
+                    table.ajax.url("{{ route('showcategory', ':category') }}".replace(':category', category)).load();
+                    $('#category_title').text(category);
+                } else {
+                    console.error('Table instance is not defined.');
+                }
+            });
+
+
+
+            //DELETE BOOK
             $('body').on('click', '.deleteBook', function () {
                 var book_id = $(this).data("id");
 
-                // Use SweetAlert for confirmation
                 Swal.fire({
                     title: 'Are you sure?',
                     text: 'You want to delete this book!',
@@ -267,47 +415,50 @@
             }
 
 
-             //CREATE AND FOR UPDATE 
-                $('#saveBtn').click(function (e) {
-                    e.preventDefault();
-                    $(this).html('Saving..');
-                
+             //CREATE AND FOR UPDATE BOOKS
+             $('#saveBtn').click(function (e) {
+                e.preventDefault();
+                $(this).html('Saving..');
 
-                    var formData = new FormData();           
-                    formData.append('book_image', $('#book_image')[0].files[0]);
+                var formData = new FormData();
+                var bookImageFile = $('#book_image')[0].files[0];
 
+                if (bookImageFile) {
+                    formData.append('book_image', bookImageFile);
+                } else {
+                    formData.append('book_image', ''); 
+                }
 
-                    $('#bookForm').find('input, textarea, select').not('#book_image').each(function () {
-                        formData.append($(this).attr('name'), $(this).val());
-                    });
+                $('#bookForm').find('input, textarea, select').not('#book_image').each(function () {
+                    formData.append($(this).attr('name'), $(this).val());
+                });
 
-                    $.ajax({
-                        data: formData,
-                        url: "{{ route('addbooks') }}",
-                        type: "POST",
-                        contentType: false,
-                        processData: false,
-                        success: function (data) {
-                            $('#bookForm').trigger("reset");
-                            let alpineInstance = document.getElementById('ajaxModal');
+                $.ajax({
+                    data: formData,
+                    url: "{{ route('addbooks') }}",
+                    type: "POST",
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        $('#bookForm').trigger("reset");
+                        let alpineInstance = document.getElementById('ajaxModal');
 
-                            if (alpineInstance) {
-                                alpineInstance.__x.$data.showModal = false; 
-                            } else {
-                                console.error('#ajaxModal element not found');
-                            }
-
-                            // table.draw();
-                            // console.log(data)
-                        },
-                        error: function (data) {
-                            console.log('Error:', data);
-                            $('#saveBtn').html('Save');
+                        if (alpineInstance) {
+                            alpineInstance.__x.$data.showModal = false; 
+                        } else {
+                            console.error('#ajaxModal element not found');
                         }
-                    });
+
+                    },
+                    error: function (data) {
+                        console.log('Error:', data);
+                        $('#saveBtn').html('Save');
+                    }
+                });
             });
 
-            //EDIT
+
+            //EDIT BOOKS
             $('body').on('click', '.editBook', function () {
                 var book_id = $(this).data('id');
                 $.get("{{ url('/editbook') }}/" + book_id, function (data) {
@@ -319,7 +470,6 @@
                         console.error('#ajaxModal element not found');
                     }
 
-                    // Update modal content with fetched data
                     $('#modelHeading').html("Edit Book");
                     $('#saveBtn').text('Save');
                     $('#saveBtn').val("edit-book");
@@ -342,27 +492,76 @@
                 });
             });
 
-                $('.category-link').on('click', function (e) {
-                    e.preventDefault();
-                    var category = $(this).data('category');
-
-                    
-
-                    table.ajax.url("{{ route('showcategory', ':category') }}".replace(':category', category)).load();
-
-                    $('#category_title').text(category);
 
 
-                });
+            //DISPLAY CATEGORY LIST SA MODAL WITH DELETE BUTTON
+            $('#categoryListContainer').on('click', '.delete-category', function(e) {
+                e.preventDefault();
+                var deleteLink = $(this);
+                var categoryToDelete = deleteLink.data('category');
+                deleteCategory(categoryToDelete);
+                fetchCategoriesAndPopulate();
+                deleteLink.closest('.flex').remove();
+               
+            });
+
+            // ADD NEW CATEGORY
+            $('#categoryForm').submit(function(e) {
+                e.preventDefault();
+                var categoryName = $('#category_name').val();
+
+                if (categoryName.trim() !== '') {
+                    $.ajax({
+                        url: '{{ route("category.add") }}',
+                        method: 'POST',
+                        data: {
+                            _token: $('input[name="_token"]').val(),
+                            category_name: categoryName
+                        },
+                        success: function(response) {
+                            console.log('Category added successfully:', response);
+
+                            var categoryItem = $('<div>')
+                                .addClass('flex flex-row justify-between border border-gray-200 rounded-lg p-2 mb-3');
+
+                            var categoryNameElement = $('<label>')
+                                .text(response.category.category)
+                                .addClass('w-2/3 px-3');
+
+                            var deleteLink = $('<a>')
+                                .addClass('delete-category')
+                                .data('category', response.category.category)
+                                .attr('href', '#');
+
+                            var deleteButtonContent =
+                                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">' +
+                                '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>' +
+                                '<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>' +
+                                '</svg>';
+
+                            deleteLink.html(deleteButtonContent);
+
+                            categoryItem.append(categoryNameElement, deleteLink);
+                            $('#categoryListContainer').append(categoryItem);
+                            $('#category_name').val('');
+
+                            fetchCategoriesAndPopulate();
+                        },
+                        error: function(error) {
+                            console.error('Error adding category:', error);
+                        }
+                    });
+                } else {
+                    console.error('Category name cannot be empty');
+                }
+            });
         
 
+ 
+
         });
-   
 
 
     </script>
-
-
-
-    </div>
+</div>
 @endsection
