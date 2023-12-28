@@ -12,7 +12,7 @@ class LibrarianMiddleware
     public function handle($request, Closure $next)
     {
        if (auth()->check()) {
-            if (!auth()->user()->username && !auth()->user()->name) {
+            if (!auth()->user()->email_verified_at) {
                 return response()->json(['error' => 'Forbidden - Access Denied'], 403);
             } 
             // else {

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BooksController;
 use App\Http\Controllers\BorrowController;
 use App\Http\Controllers\BorrowReturnController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\PatronController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,16 +27,29 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Route::resource('books', BooksController::class);
 
 
 
-Auth::routes();
+Auth::routes([
+    'verify'=>true
+]);
 
+
+
+    Route::get('/email/verify', function () {
+        return view('auth.verify-email');
+    })->middleware('auth')->name('verification.notice');
+
+
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect('/dashboard');
+        
+    })->middleware(['auth', 'signed'])->name('verification.verify');
 
 
 Route::middleware(['librarian'])->group(function () {
-    Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'dashboard'])->name('dashboard');
     Route::get('/dashboard/content', [DashboardContent::class, 'content'])->name('dashboard.content'); // dito na kunin pang display sa dashboard
 
     Route::get('/listbooks', [BooksController::class, 'index'])->name('listbooks'); 
@@ -80,7 +95,10 @@ Route::middleware(['librarian'])->group(function () {
 Route::middleware(['self-register'])->group(function () {
     Route::match(['get', 'post'], '/google/logout', [GoogleController::class, 'logoutGoogle'])->name('logout.google');
     Route::get('/register/librarian', [GoogleController::class, 'redirectToRegister'])->name('register.librarian');
+    
 });
+
+
 
 
 

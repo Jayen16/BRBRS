@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Session;
 
 class GoogleController extends Controller
 {
@@ -17,7 +18,7 @@ class GoogleController extends Controller
 
     public function redirectToRegister()
     {
-        return view('selfregistration');
+        return view('register');
     }
 
     public function handleGoogleCallback(Request $request)
@@ -31,24 +32,18 @@ class GoogleController extends Controller
         $user = User::where('email', $googleUser->email)->first();
 
         if (!$user) {
-            return redirect('/register')->with('error', 'Email is not recognized.');;
-        }
-     
-        // if (auth()->check() && !$user->email) {
-        //     return response('Forbidden - Access Denied', 403);
-        // }
-
-        if (auth()->check() && !$user->email) {
-            return response()->json(['message' => 'Access Denied'], 403);
-        }
-        
-
-        // Authenticate the user if not authenticated
-        if (!auth()->check()) {
-            auth()->login($user);
+            return redirect('/register')->with('error', 'Email is not recognized.');
         }
 
-        return redirect()->route('register.librarian');
+        if (empty($user->name) && empty($user->username)) {
+            Session::put('email', $user->email);
+            return redirect()->route('register.librarian');
+
+        }else{
+            return response()->json(['error' => 'User is already registered'], 409);
+        }
+
+
     }
 
     public function logoutGoogle(){

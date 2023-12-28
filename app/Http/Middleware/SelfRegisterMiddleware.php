@@ -9,9 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 class SelfRegisterMiddleware
 {
     public function handle($request, Closure $next)
-    {
-        if (auth()->check()) {
-            if(!auth()->user()->email) {
+    {   
+        $emailFromSession  = session('email');
+        if ($emailFromSession) {
+            if(!$emailFromSession) {
                 return response('Forbidden - Access Denied', 403);
             }
         } else {

@@ -29,7 +29,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo = RouteServiceProvider::DASHBOARD;
 
     /**
      * Create a new controller instance.
@@ -51,15 +51,16 @@ class LoginController extends Controller
     {
         $this->validateLogin($request);
 
-        // Attempt to log the user in
         if (Auth::attempt($this->credentials($request))) {
-            // Custom logic after successful authentication
-            $user = Auth::user(); // Retrieve the authenticated user
 
-                if ($user) {
-                    // Redirect to admin dashboard or perform admin-specific actions
+            $user = Auth::user(); 
+
+                if ($user->email_verified_at !==null) {
+
                     return redirect()->route('dashboard');
-                } 
+                } else{
+                    return redirect()->route('login');
+                }
         }
 
         // Handle unsuccessful login attempts
