@@ -67,18 +67,19 @@ class PatronController extends Controller
 
     public function store(Request $request)
     {
-
-        $validatedData = $request->validate([
-            'patron_id' => 'required|string',
-            'school_id' => 'required|string',
-            'name' => 'required|string',
-            'course' => 'required|string', 
-            'sex' => 'nullable|string', 
-            'type' => 'required|string',
-        ]);
-    
-        // Now that the data is validated, proceed to store it
-        Patron::updateOrCreate(['id' => $request->id], $validatedData);
+        // Remove the validate method
+        // $validatedData = $request->validate([
+        //     'patron_id' => 'required|string',
+        //     'school_id' => 'required|string',
+        //     'name' => 'required|string',
+        //     'course' => 'required|string', 
+        //     'sex' => 'nullable|string', 
+        //     'type' => 'required|string',
+        // ]);
+        
+        // Proceed to store the data without validation
+        $data = $request->only(['patron_id', 'school_id', 'name', 'course', 'sex', 'type']);
+        Patron::updateOrCreate(['id' => $request->id], $data);
     
         return response()->json(['success' => 'Patron added successfully.']);
     }

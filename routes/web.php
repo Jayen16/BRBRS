@@ -55,7 +55,9 @@ Route::middleware(['librarian'])->group(function () {
     Route::get('/listbooks', [BooksController::class, 'index'])->name('listbooks'); 
     Route::post('/addbooks', [BooksController::class, 'store'])->name('addbooks'); 
     Route::delete('/deletebook/{id}', [BooksController::class, 'destroy'])->name('deletebook');
-    Route::get('/editbook/{id}', [BooksController::class, 'edit'])->name('editbook');
+    Route::get('/edit/book/{id}', [BooksController::class, 'editBook'])->name('editbook');
+    // Route::put('/update/book/{id}', [BooksController::class, 'updateBook'])->name('updateBook');
+    
     Route::get('/listbooks/{category}', [BooksController::class, 'show'])->name('showcategory');
     
     // Route for updating a book
@@ -64,6 +66,9 @@ Route::middleware(['librarian'])->group(function () {
     Route::get('/patron', [PatronController::class, 'index'])->name('patron');
     Route::get('/patron/display', [PatronController::class, 'displayPatrons'])->name('PatronsList');
     Route::get('/editpatron/{id}', [PatronController::class, 'edit'])->name('editpatron');
+
+
+
     Route::post('/addpatrons', [PatronController::class, 'store'])->name('addpatrons');
     Route::delete('/deletepatron/{id}', [PatronController::class, 'destroy'])->name('deletepatron'); 
     Route::get('/patron/{id}/{book_id}', [PatronController::class, 'show'])->name('get_patron');

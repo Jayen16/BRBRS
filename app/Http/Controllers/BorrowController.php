@@ -51,7 +51,7 @@ class BorrowController extends Controller
     {
 
 
-        if($transaction =='Borrow'){
+        if($transaction ==='Borrow'){
 
             $checkIfBookExists = Book::where('id',$id)
             ->where('status','available')
@@ -83,7 +83,7 @@ class BorrowController extends Controller
 
 
 
-        }elseif($transaction =='Return'){
+        }elseif($transaction ==='Return'){
 
             $checkIfBookExists = Book::where('id',$id)
             ->where('status','borrowed')
@@ -111,17 +111,16 @@ class BorrowController extends Controller
                      if ($getBorrowId) {
 
                             $getBorrowId->update(['borrow_status' => 'returned']);
-                                                
+                                         
                             $recordReturn = new ReturnHistory();
                             $recordReturn->book_id = $id;
                             $recordReturn->borrow_id = $getBorrowId->id;
                             $recordReturn->borrower_id = $rfid_id;
-                            $recordReturn->return_status = 'returned';
                             $recordReturn->attending_librarian_id = auth()->user()->id ;
                             $recordReturn->save();
                     
                             Book::where('id', $id)
-                                ->update(['status' => 'available']);
+                            ->update(['status' => 'available']);
                 
                             return response()->json(['success' => 'The book has been returned successfully'], 200);
 

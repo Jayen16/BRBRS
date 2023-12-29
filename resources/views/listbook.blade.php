@@ -424,44 +424,48 @@
                 var bookImageFile = $('#book_image')[0].files[0];
 
                 if (bookImageFile) {
-                    formData.append('book_image', bookImageFile);
-                } else {
-                    formData.append('book_image', ''); 
-                }
+                        formData.append('book_image', bookImageFile);
+                    }
+
+
 
                 $('#bookForm').find('input, textarea, select').not('#book_image').each(function () {
                     formData.append($(this).attr('name'), $(this).val());
                 });
 
+
                 $.ajax({
-                    data: formData,
-                    url: "{{ route('addbooks') }}",
-                    type: "POST",
-                    contentType: false,
-                    processData: false,
-                    success: function (data) {
-                        $('#bookForm').trigger("reset");
-                        let alpineInstance = document.getElementById('ajaxModal');
+                   data: formData,
+                   url: "{{ route('addbooks') }}",
+                   type: "POST",
+                   contentType: false,
+                   processData: false,
+                   success: function (data) {
+                       $('#bookForm').trigger("reset");
+                       let alpineInstance = document.getElementById('ajaxModal');
 
-                        if (alpineInstance) {
-                            alpineInstance.__x.$data.showModal = false; 
-                        } else {
-                            console.error('#ajaxModal element not found');
-                        }
+                       if (alpineInstance) {
+                           alpineInstance.__x.$data.showModal = false; 
+                       } else {
+                           console.error('#ajaxModal element not found');
+                       }
 
-                    },
-                    error: function (data) {
-                        console.log('Error:', data);
-                        $('#saveBtn').html('Save');
-                    }
-                });
+                       table.draw();
+                   },
+                   error: function (data) {
+                       console.log('Error:', data);
+                       $('#saveBtn').html('Save');
+                   }
+               });
+
+
             });
 
 
             //EDIT BOOKS
             $('body').on('click', '.editBook', function () {
                 var book_id = $(this).data('id');
-                $.get("{{ url('/editbook') }}/" + book_id, function (data) {
+                $.get("{{ url('/edit/book') }}/" + book_id, function (data) {
 
                     let alpineInstance = document.getElementById('ajaxModal');
                     if (alpineInstance) {
@@ -473,8 +477,8 @@
                     $('#modelHeading').html("Edit Book");
                     $('#saveBtn').text('Save');
                     $('#saveBtn').val("edit-book");
-
-                    $('#book_id').val(data.id);
+                   
+                    $('#book_number_id').val(data.id);
                     $('#title').val(data.title);
                     $('#author').val(data.author);
                     $('#status').val(data.status);
@@ -487,6 +491,7 @@
                     $('#copyright_year').val(data.copyright_year);
                     $('#accession_number').val(data.accession_number);
                     $('#description').val(data.description);
+
 
                     
                 });

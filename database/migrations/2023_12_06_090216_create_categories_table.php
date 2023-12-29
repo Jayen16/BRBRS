@@ -10,37 +10,37 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('category');
-            $table->timestamps();
-        });
+    // public function up(): void
+    // {
+    //     Schema::create('categories', function (Blueprint $table) {
+    //         $table->id();
+    //         $table->string('category');
+    //         $table->timestamps();
+    //     });
 
-        $categories = [
-            'Fiction',
-            'Non-Fiction',
-            'Children\'s Book',
-            'Reference',
-            'Periodicals',
-            'Biography'
-        ];
+    //     $categories = [
+    //         'Fiction',
+    //         'Non-Fiction',
+    //         'Children\'s Book',
+    //         'Reference',
+    //         'Periodicals',
+    //         'Biography'
+    //     ];
 
-        foreach ($categories as $category) {
-            DB::table('categories')->insert([
-                'category' => $category,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-        }
-    }
+    //     foreach ($categories as $category) {
+    //         DB::table('categories')->insert([
+    //             'category' => $category,
+    //             'created_at' => now(),
+    //             'updated_at' => now()
+    //         ]);
+    //     }
+    // }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('categories');
-    }
+    // /**
+    //  * Reverse the migrations.
+    //  */
+    // public function down(): void
+    // {
+    //     Schema::dropIfExists('categories');
+    // }
 };

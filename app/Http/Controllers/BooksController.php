@@ -112,7 +112,7 @@ class BooksController extends Controller
         }
         
         
-            $book = Book::updateOrCreate(['id' => $request->book_id], $validatedData);
+            $book = Book::updateOrCreate(['id' => $request->book_number_id], $validatedData);
         
             if ($book) {
                 return response()->json(['success' => 'Book saved successfully.', 'book' => $book]);
@@ -122,33 +122,9 @@ class BooksController extends Controller
     }
 
 
- 
-    // public function store(Request $request)
-    // {
 
-    //     $validatedData = $request->validate([
-    //         'title' => 'required|string',
-    //         'author' => 'required|string',
-    //         'location_rack' => 'required|string',
-    //         'status' => 'required|string', 
-    //         'isbn' => 'nullable|string', 
-    //         'category' => 'required|string',
-    //         'condition' => 'required|string',
-    //         'book_image' => 'nullable|string|image', 
-    //         'edition' => 'nullable|string',
-    //         'publisher' => 'nullable|string',
-    //         'copyright_year' => 'nullable|numeric',
-    //         'accession_number' => 'nullable|string',
-    //         'description' => 'nullable|string',
-    //     ]);
-    
-    //     // Now that the data is validated, proceed to store it
-    //     Book::updateOrCreate(['id' => $request->book_id], $validatedData);
-    
-    //     return response()->json(['success' => 'Book saved successfully.']);
-    // }
 
-    public function edit($id)
+    public function editBook($id)
     {
         $book = Book::find($id);
         

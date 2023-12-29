@@ -29,6 +29,9 @@ class BorrowHistory extends Model
     }
     
 
-    
+    public function returnHistory()
+    {
+        return $this->belongsTo(BorrowHistory::class, 'id', 'borrow_id');
+    }
 
 }

@@ -10,7 +10,7 @@
                 <!-- new row -->
                 <form id="bookForm" name="bookForm" class="form-horizontal" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" name="book_id" id="book_id">
+                    <input type="hidden" name="book_number_id" id="book_number_id">
                     <div class="border border-gray-200 rounded-lg p-2 py-4">
                         <div class="flex flex-row mb-1">
                             <div class="w-1/3 px-3 mb-3">

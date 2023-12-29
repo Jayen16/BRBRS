@@ -9,23 +9,23 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('borrow_histories', function (Blueprint $table) {
-            $table->id();
-            $table->string('book_id');
-            $table->string('borrower_id');
-            $table->string('borrow_status');
-            $table->string('attending_librarian_id');
-            $table->timestamps();
-        });
-    }
+    // public function up(): void
+    // {
+    //     Schema::create('borrow_histories', function (Blueprint $table) {
+    //         $table->id();
+    //         $table->string('book_id');
+    //         $table->string('borrower_id');
+    //         $table->string('borrow_status');
+    //         $table->string('attending_librarian_id');
+    //         $table->timestamps();
+    //     });
+    // }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('borrow_histories');
-    }
+    // /**
+    //  * Reverse the migrations.
+    //  */
+    // public function down(): void
+    // {
+    //     Schema::dropIfExists('borrow_histories');
+    // }
 };
