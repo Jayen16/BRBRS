@@ -3,7 +3,7 @@
     <div x-transition x-cloak
         class="fixed inset-0 flex items-center justify-center z-20">
         <div x-cloak class="bg-white p-6 rounded-lg z-10 w-1/2 h-[75vh]">
-            <h2 id="modelHeading"
+            <h2 id="modelHeader"
                 class="uppercase bg-green-800 rounded-lg text-lg text-white p-2 font-semibold mb-4 text-center mb-6">
                 Add New Book</h2>
             <div class="h-[55vh] overflow-y-auto">
@@ -205,3 +205,14 @@
     
 </div>
 
+<script>
+               function previewImage(event) {
+                var reader = new FileReader();
+                reader.onload = function() {
+                    var output = document.getElementById('preview');
+                    output.src = reader.result;
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            }
+
+</script>

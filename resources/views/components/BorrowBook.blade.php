@@ -17,7 +17,7 @@
             <div class="flex justify-center">
                 <form id="borrowForm" name="borrowForm" class="form-horizontal">
                     @csrf
-                    <input type="text" name="borrow_book_id" id="borrow_book_id" placeholder=" Click to read RFID" class="bg-slate-100 p-2 mb-2 border rounded w-96 text-lg">
+                    <input type="password" name="borrow_book_id" id="borrow_book_id" placeholder=" Click to read RFID" class="bg-slate-100 p-2 mb-2 border rounded w-96 text-lg">
 
             </div>
 
@@ -116,6 +116,7 @@
                                 
                     },
                     error: function(xhr, status, error) {
+                        clearFormFields();
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
@@ -124,6 +125,7 @@
                     }
                 });
             } else {
+                clearFormFields();
                 Swal.fire({
                     icon: 'error',
                     title: 'Error!',
@@ -144,6 +146,11 @@
         $('#borrower_type').val(data.patron.type || '');
         $('#borrower_book').val(data.book.title || '');
         $('#borrower_time').val(formattedDate || '');
+
+        $('#borrow_book_id').click(function() {
+           $('#borrow_book_id').val('');
+        });
+
     }
 
 
@@ -167,6 +174,7 @@
                         }
                     });
                 } else if (response.error) {
+                   
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
@@ -199,14 +207,17 @@
     });
 
 
-
     function clearFormFields() {
         $('#borrower_name').val('');
         $('#borrower_type').val('');
         $('#borrower_book').val('');
         $('#borrower_time').val('');
-        $('#borrow_book_id').val('');
+
+        setTimeout(function() {
+            $('#borrow_book_id').val('');
+        }, 2500);
     }
+
 
     $('#cancelButton').on('click', function() {
         clearFormFields();

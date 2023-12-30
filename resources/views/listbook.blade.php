@@ -34,7 +34,7 @@
                     <div class="mb-4 flex justify-end" id="categoryModal">
 
                         <button x-on:click="showCategoryModal = true" href="javascript:void(0)" id="insertNewCategory"
-                            class="bg-green-800 hover:bg-green-800 p-3 rounded-md text-white font-medium mt-4">New Category
+                            class="bg-green-800 hover:bg-green-800 p-3 rounded-md text-white font-medium mt-4">Manage Category
                         </button>
 
                         <x-Categories/>                        
@@ -240,6 +240,8 @@
                     success: function(deleteResponse) {
                         console.log(`Category '${categoryToDelete}' deleted successfully.`);
                         fetchCategoriesAndPopulate();
+                         categorySelection();
+
                     },
                     error: function(deleteError) {
                         console.error('Error deleting category:', deleteError);
@@ -247,29 +249,19 @@
                 });
             }
 
-            var table;
 
-            $(document).ready(function() {         
-
-                fetchCategoriesAndPopulate();
-                updateCategoryModalList();
-
-  
-            });
-
-
-
-            //CATEGORY OPTION SA MODAL, PAMIMILIAN
-            $.ajax({
+            function categorySelection(){
+                $.ajax({
                 url: '/category/display', 
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
+                    // clear muna categ para display updated
+                    $('#category').empty();
 
                     var categories = response.categories; 
 
                     categories.forEach(function(category) {
-
                         // Category list sa add book ito
                         $('#category').append('<option value="' + category + '">' + category + '</option>');           
                             
@@ -279,6 +271,22 @@
                     console.error(error); 
                 }
             });
+            }
+
+            var table;
+
+            $(document).ready(function() {         
+
+                fetchCategoriesAndPopulate();
+                updateCategoryModalList();
+                categorySelection();
+  
+            });
+
+
+
+            //CATEGORY OPTION SA MODAL, PAMIMILIAN
+
 
          //DISPLAY DATA FROM API FOR DATATABLE
         $(function() {
@@ -395,13 +403,13 @@
 
 
 
-            $('#createNewBook').click(function () {
-                $('#saveBtn').val("create-book");
-                $('#book_id').val('');
-                $('#bookForm').trigger("reset");
-                $('#modelHeading').html("Create New Book");
-                $('#ajaxModel').modal('show');
-            });
+                $('#createNewBook').click(function () {
+                    $('#saveBtn').val("create-book");
+                    $('#modelHeader').text("Create New Book");
+                    $('#book_id').val('');
+                    $('#bookForm').trigger("reset");
+                    $('#ajaxModel').modal('show');
+                });
 
 
 
@@ -467,6 +475,8 @@
                 var book_id = $(this).data('id');
                 $.get("{{ url('/edit/book') }}/" + book_id, function (data) {
 
+                    $('#modelHeader').html("Edit Book");
+                    
                     let alpineInstance = document.getElementById('ajaxModal');
                     if (alpineInstance) {
                         alpineInstance.__x.$data.showModal = true; 
@@ -474,7 +484,6 @@
                         console.error('#ajaxModal element not found');
                     }
 
-                    $('#modelHeading').html("Edit Book");
                     $('#saveBtn').text('Save');
                     $('#saveBtn').val("edit-book");
                    
@@ -549,7 +558,7 @@
                             categoryItem.append(categoryNameElement, deleteLink);
                             $('#categoryListContainer').append(categoryItem);
                             $('#category_name').val('');
-
+                            categorySelection();
                             fetchCategoriesAndPopulate();
                         },
                         error: function(error) {
