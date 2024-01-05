@@ -173,17 +173,18 @@
                         if (result.isConfirmed) {
                         }
                     });
-                } else if (response.error) {
-                   
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: response.error,
-                    });
                 }
-
             },
+            error: function(xhr, status, error) {
+                // Handle AJAX errors here
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'This patron is not the last borrower of this book.',
+                });
+            }
         });
+
     }
 
    

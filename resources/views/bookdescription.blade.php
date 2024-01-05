@@ -152,7 +152,7 @@
         </div>
     </div>
 </div>
-<x-BorrowBook :bookId="$bookId" />
+{{-- <x-BorrowBook :bookId="$bookId" /> --}}
 
 
 <script>
@@ -275,7 +275,12 @@
                     newRow.find('.borrower_name').text(historyItem.borrower.name);
                     newRow.find('.borrower_type').text(historyItem.borrower.type);
                     newRow.find('.borrow_status').text(status);
-                    newRow.find('.borrower_returned').text(formatDate(historyItem.created_at));
+
+                    if(historyItem.borrow_status == 'returned'){
+                        newRow.find('.borrower_returned').text(formatDate(historyItem.updated_at));
+                    }else{
+                         newRow.find('.borrower_returned').text(' ');
+                    }
 
                     // Append the new row to the table body
                     $('#tableBody').append(newRow);

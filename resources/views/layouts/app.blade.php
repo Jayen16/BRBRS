@@ -107,19 +107,6 @@
                                     </div>
                                     <ul role="menu" data-popover="profile-menu" data-popover-placement="bottom"
                                         class="absolute z-10 flex min-w-[180px] flex-col gap-2 overflow-auto rounded-md border border-blue-gray-50 bg-white p-1 font-sans text-sm font-normal text-blue-gray-500 shadow-lg shadow-blue-gray-500/10 focus:outline-none">
-                                        <button tabIndex="-1" role="menuitem"
-                                            class="flex w-full cursor-pointer select-none items-center gap-2 rounded-md px-3 pt-[9px] pb-1 text-start leading-tight outline-none transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke-width="2" stroke="currentColor" aria-hidden="true" class="h-4 w-4">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z">
-                                                </path>
-                                            </svg>
-                                            <p
-                                                class="block font-sans text-sm font-normal leading-normal text-inherit antialiased">
-                                                Account Setting
-                                            </p>
-                                        </button>
                                         <hr class="border-blue-gray-50" tabindex="-1" role="menuitem" />
                                         <button tabIndex="-1" role="menuitem"
                                             class="flex w-full cursor-pointer select-none items-center gap-2 rounded-md px-3 pb-1 text-start leading-tight outline-none transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900">

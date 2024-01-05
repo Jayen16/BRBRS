@@ -33,12 +33,12 @@
                                         <button x-on:click="openTab = 2"  :class="{ 'bg-green-800 text-white': openTab === 2 }" 
                                             :class="{ 'bg-green-800 text-white': openTab === 2 }"
                                             class="flex-1 py-3 px-4 rounded-md focus:outline-none border-2 uppercase font-medium focus:shadow-outline-blue transition-all duration-300">Faculty</button>
-                                        <button x-on:click="openTab = 3"  :class="{ 'bg-green-800 text-white': openTab === 3 }" 
+                                        {{-- <button x-on:click="openTab = 3"  :class="{ 'bg-green-800 text-white': openTab === 3 }" 
                                             :class="{ 'bg-green-800 text-white': openTab === 3 }"
                                             class="flex-1 py-3 px-4 rounded-md focus:outline-none border-2 uppercase font-medium focus:shadow-outline-blue transition-all duration-300">Staff</button>
                                         <button x-on:click="openTab = 4"  :class="{ 'bg-green-800 text-white': openTab === 4 }" 
                                             :class="{ 'bg-green-800 text-white': openTab === 4 }"
-                                            class="flex-1 py-3 px-4 rounded-md focus:outline-none border-2 uppercase font-medium focus:shadow-outline-blue transition-all duration-300">Guest</button>
+                                            class="flex-1 py-3 px-4 rounded-md focus:outline-none border-2 uppercase font-medium focus:shadow-outline-blue transition-all duration-300">Guest</button> --}}
                                     </div>
 
                                     <!-- STUDENT -->
@@ -147,7 +147,7 @@
                                     </div>
 
                                     <!-- STAFF -->
-                                    <div x-show="openTab === 3" class="w-full shadow-md mt-1 overflow-y-auto max-h-[70vh]">
+                                    {{-- <div x-show="openTab === 3" class="w-full shadow-md mt-1 overflow-y-auto max-h-[70vh]">
                                         <!-- Search bar -->
                                         <div class="flex items-center my-4">
                                             <div class="w-full relative mx-auto text-gray-600">
@@ -196,10 +196,10 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                    </div>
+                                    </div> --}}
 
                                     <!-- GUEST -->
-                                    <div x-show="openTab === 4"
+                                    {{-- <div x-show="openTab === 4"
                                         class="w-full shadow-md mt-1 overflow-y-auto max-h-[70vh]">
                                         <!-- Search bar -->
                                         <div class="flex items-center my-4">
@@ -249,7 +249,7 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                    </div>
+                                    </div> --}}
                                 </div>
 
                             </div>
@@ -394,7 +394,7 @@
               if (result.isConfirmed) {
                 $.ajax({
                   type: "DELETE",
-                  url: "{{ url('/deletepatron') }}/" + id, 
+                  url: "{{ url('/api/deletepatron') }}/" + id, 
                   data: {
                     _token: '{{ csrf_token() }}'
                   },
@@ -451,7 +451,7 @@
       
             $('body').on('click', '.editPatron', function() {
                 var id = $(this).data('id');
-                $.get("{{ url('/editpatron') }}/" + id, function(data) {
+                $.get("{{ url('/api/editpatron') }}/" + id, function(data) {
 
                     let alpineInstance = document.getElementById('ajaxModal');
                     if (alpineInstance) {

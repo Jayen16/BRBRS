@@ -34,7 +34,7 @@
                     <div class="text-center rounded-3xl">
                         <div class="py-12 px-12 bg-white rounded-2xl shadow-xl z-20 border border-gray-2 00">
 
-                            <form method="POST" action="{{ route('login') }}">
+                            <form method="POST" action="{{ route('login') }}" id="loginForm">
                                 @csrf
                          
 
@@ -95,4 +95,37 @@
             </div>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#loginForm').submit(function(e) {
+                e.preventDefault(); 
+    
+                var formData = $(this).serialize();
+    
+                $.ajax({
+                    url: '{{ route("login") }}',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.message === 'Login successful') {
+                            // Redirect to the dashboard on successful login
+                            window.location.href = response.dashboard_url;
+                        } else if (response.message === 'Email not yet verified') {
+                            // Handle the case where email is not verified
+                            alert('Email not verified! Please verify your email.');
+                            // You might want to redirect or handle this differently
+                        } else {
+                            console.log('Login unsuccessful');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+    
+    
 @endsection

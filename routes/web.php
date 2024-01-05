@@ -29,11 +29,9 @@ Route::get('/', function () {
 
 
 
-
-Auth::routes([
-    'verify'=>true
-]);
-
+    Auth::routes([
+        'verify'=>true
+    ]);
 
 
     Route::get('/email/verify', function () {
@@ -48,53 +46,56 @@ Auth::routes([
     })->middleware(['auth', 'signed'])->name('verification.verify');
 
 
-Route::middleware(['librarian'])->group(function () {
-    Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'dashboard'])->name('dashboard');
-    Route::get('/dashboard/content', [DashboardContent::class, 'content'])->name('dashboard.content'); // dito na kunin pang display sa dashboard
 
-    Route::get('/listbooks', [BooksController::class, 'index'])->name('listbooks'); 
-    Route::post('/addbooks', [BooksController::class, 'store'])->name('addbooks'); 
+
+// Route::middleware(['auth','librarian'])->group(function () {
+
+    //DASHBOARD VIEW
+    Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'dashboard'])->name('dashboard');
+
+    //PATRON VIEW
+    Route::get('/patron', [PatronController::class, 'displayPatrons'])->name('patron');
+
+    //BOOK VIEW
+    Route::get('/listbooks', [BooksController::class, 'displayBooks'])->name('listbooks'); 
+
+    //HISTORY OF BORROW AND RETURN VIEW
+    Route::get('/borrowing/history', [BorrowReturnController::class, 'index'])->name('historybooks');
+
+
+
+ // <---------------------------------------------JAKE----------------------------------------------->
+  // <-------------------------------------------------------------------------------------------------->
+  // <-------------------------------ETO YUNG ILILIPAT MO SA api.php , -------------------------------->
+
     Route::delete('/deletebook/{id}', [BooksController::class, 'destroy'])->name('deletebook');
     Route::get('/edit/book/{id}', [BooksController::class, 'editBook'])->name('editbook');
-    // Route::put('/update/book/{id}', [BooksController::class, 'updateBook'])->name('updateBook');
-    
     Route::get('/listbooks/{category}', [BooksController::class, 'show'])->name('showcategory');
-    
-    // Route for updating a book
-    // Route::post('/books/update', [BookController::class, 'store'])->name('updatebook');
-    
-    Route::get('/patron', [PatronController::class, 'index'])->name('patron');
-    Route::get('/patron/display', [PatronController::class, 'displayPatrons'])->name('PatronsList');
-    Route::get('/editpatron/{id}', [PatronController::class, 'edit'])->name('editpatron');
-
-
-
-    Route::post('/addpatrons', [PatronController::class, 'store'])->name('addpatrons');
-    Route::delete('/deletepatron/{id}', [PatronController::class, 'destroy'])->name('deletepatron'); 
-    Route::get('/patron/{id}/{book_id}', [PatronController::class, 'show'])->name('get_patron');
-    
     
     Route::get('/description/book/{id}', [BorrowController::class, 'show'])->name('description');
     Route::get('/description/{id}', [BorrowController::class, 'displayshow'])->name('displaydescription');
     Route::get('/description/{transaction}/{id}/{patron_id}', [BorrowController::class, 'borrow'])->name('borrow');
 
-    Route::get('/borrowing/history', [BorrowReturnController::class, 'index'])->name('historybooks');
     Route::get('/history/book/{id}', [BorrowReturnController::class, 'show'])->name('displayhistory');
     Route::get('/history/borrow', [BorrowReturnController::class, 'displayBorrow'])->name('BorrowHistory');
     Route::get('/history/return', [BorrowReturnController::class, 'displayReturn'])->name('ReturnHistory');
 
-    Route::get('/category/display', [CategoryController::class, 'displayCategory'])->name('CategoryList');
-    Route::delete('/delete/category/{category}', [CategoryController::class, 'deleteCategory'])->name('category.delete');
-    Route::post('/add/category', [CategoryController::class, 'addCategory'])->name('category.add');
+    // Pag nilipat mo yung route from web.php to api.php , you have to add /api sa mga ajax kasi..
+    //.. yung api.php matik may /api sa url, so for example /deletebook/{id} magiging /api/deletebook/{id}
+    // IMPORTANT NOTE: everytime may new route ..run this command "php artisan route:list" para makilala ni api.php na may bagong route
 
-    //GENERATE using PDF/DOMPDF (ayaw tumanggap ng javascript dito pag html na)...Datatable nalang may feature na PDF button
+    // sa code naman , pacheck sa PatronController.php, gamitin ung mga name na "store" , "destroy" , "show" ,"index", "update"
+    // paki-separate yung may mga updateOrCreate, gawan ng sariling route na "PUT" 
 
-    // Route::get('/history/borrow/pdf', [BorrowReturnController::class, 'generateBorrowHistory'])->name('borrowPDF');
-    // Route::get('/history/borrow/fetch', [BorrowReturnController::class, 'fetchBorrowHistory'])->name('fetchBorrowHistory');
-    // Route::get('/history/return/pdf', [BorrowReturnController::class, 'generateReturnHistory'])->name('returnPDF');
+    //take note din , sa mga "store" ,"destroy" usually ginagamitan ng try and catch function yan
+    // tapos... laging may response json for success at failed , kasi yan din titingnan ni sir..
+    // ..for example sa PatronController ulit sa "store" may validation dyan line 83-94 , yan ung mag aappear as error like incomplete input.. or already existing school id
+   
+    // <-------------------------------------------------------------------------------------------------->
+    // <-------------------------------------------------------------------------------------------------->
+     // <-------------------------------------------------------------------------------------------------->
 
-
-});
+// });
 
 
 Route::middleware(['self-register'])->group(function () {
@@ -102,9 +103,6 @@ Route::middleware(['self-register'])->group(function () {
     Route::get('/register/librarian', [GoogleController::class, 'redirectToRegister'])->name('register.librarian');
     
 });
-
-
-
 
 
 Route::group(['prefix' => 'auth'], function () {

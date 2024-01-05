@@ -214,7 +214,7 @@
                         var categoryToDelete = deleteLink.data('category');
 
                         $.ajax({
-                            url: '/delete/category/' + categoryToDelete,
+                            url: '/api/delete/category/' + categoryToDelete,
                             method: 'DELETE',
                             success: function(deleteResponse) {
                                 console.log(`Category '${categoryToDelete}' deleted successfully.`);
@@ -235,7 +235,7 @@
 
             function deleteCategory(categoryToDelete) {
                 $.ajax({
-                    url: '/delete/category/' + categoryToDelete,
+                    url: '/api/delete/category/' + categoryToDelete,
                     method: 'DELETE',
                     success: function(deleteResponse) {
                         console.log(`Category '${categoryToDelete}' deleted successfully.`);
@@ -252,7 +252,7 @@
 
             function categorySelection(){
                 $.ajax({
-                url: '/category/display', 
+                url: '/api/category/display', 
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
@@ -301,7 +301,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('listbooks') }}",
+                    url: "{{ route('BookList') }}",
                     type: 'GET'
                 },
                 columns: [{
@@ -388,7 +388,7 @@
                     if (result.isConfirmed) {
                         $.ajax({
                             type: "DELETE",
-                            url: "{{ url('/deletebook') }}/" + book_id,
+                            url: "{{ url('/api/deletebook') }}/" + book_id,
                             data: { _token: '{{ csrf_token() }}' },
                             success: function (data) {
                                 table.draw();

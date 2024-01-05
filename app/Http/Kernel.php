@@ -50,6 +50,9 @@ class Kernel extends HttpKernel
         'librarian' => [
             \App\Http\Middleware\LibrarianMiddleware::class,
         ],
+        'librarianUI' => [
+            \App\Http\Middleware\LibrarianInterfaceMiddleware::class,
+        ],
     ];
 
     /**

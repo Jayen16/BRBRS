@@ -13,16 +13,13 @@ use Yajra\DataTables\Facades\DataTables;
 class BorrowController extends Controller
 {
     
-    // public $gotId;
 
-    public function index(Request $request)
+
+    public function index()
     {
-   
-        $books = Book::latest()->get();
-      
-        return view('listbook',compact('books'));
-   
+        return view('bookdescription');
     }
+
 
 
     public function show($id)
@@ -39,8 +36,6 @@ class BorrowController extends Controller
 
     public function displayshow($id)
     {
-        // $this->gotId = $id;
-        // return view('bookdescription');
         return view('bookdescription',compact('id'));
     }
 
@@ -100,7 +95,7 @@ class BorrowController extends Controller
             if ($checkIfBookExists && $selectedBook->status ==='borrowed' ){
                 // kapag nireturn , need update sa borrow history, add new data sa return history,  then sa book gawing 'available'
 
-                if ($checkIfBorrowerExists->borrower_id === $rfid_id) {
+                if (isset($checkIfBorrowerExists->borrower_id) && $checkIfBorrowerExists->borrower_id !== null) {
 
                     $getBorrowId = BorrowHistory::where('book_id', $id)
                     ->where('borrower_id', $rfid_id)
@@ -125,7 +120,9 @@ class BorrowController extends Controller
                             return response()->json(['success' => 'The book has been returned successfully'], 200);
 
                         } else {
+
                             return response()->json(['error' => 'The book is not currently borrowed'], 404);
+                            
                         }
 
                     } else {
@@ -133,6 +130,8 @@ class BorrowController extends Controller
                         return response()->json(['error' => 'This patron is not the last borrower of this book'], 404);
                     }
                          
+
+                    
                     
              }else{
                 return response()->json(['error' => 'The book is not currently borrowed'], 404);
