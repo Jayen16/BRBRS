@@ -6,10 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-
 
 class RegisterController extends Controller
 {
@@ -50,54 +48,35 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
-    // protected function validator(array $data)
-    // {
-    //     return Validator::make($data, [
-    //         'name' => ['required', 'string', 'max:255'],
-    //         'username' => ['required', 'string', 'max:255'],
-    //         'password' => ['required', 'string', 'min:8', 'confirmed'],
-    //     ]);
-    // }
-
-
-    // protected function create(array $data)
-    // {
-    //     $emailFromSession  = session('email');
-
-    //     $user = User::where('email', $emailFromSession )->first();
-
-    //     if ($user) {
-    //         $user->name = $data['name'];
-    //         $user->username = $data['username'];
-    //         $user->password = Hash::make($data['password']);
-    //         $user->save();
-    //     }
-    
-    //     return $user;
-    // }
-
-    public function register(Request $request)
+    protected function validator(array $data)
     {
-        $this->validator($request->all())->validate();
-    
-        $email = $request->input('email'); // Change 'email' to the field name for the user identifier
-    
-        $user = User::where('email', $email)->first();
-    
-        if ($user) {
-            $user->name = $request->input('name');
-            $user->username = $request->input('username');
-            $user->password = Hash::make($request->input('password'));
-            $user->save();
-    
-            return redirect('/dashboard')->with('success', 'User updated successfully');
-        } else {
-            // Handle if the user doesn't exist or other error scenarios
-            return redirect()->back()->with('error', 'User not found or other error occurred');
-        }
+        return Validator::make($data, [
+            'name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
     }
+
+    /**
+     * Create a new user instance after a valid registration.
+     *
+     * @param  array  $data
+     * @return \App\Models\User
+     */
+    protected function create(array $data)
+    {
+        $emailFromSession  = session('email');
+
+        $user = User::where('email', $emailFromSession )->first();
+
+        if ($user) {
+            $user->name = $data['name'];
+            $user->username = $data['username'];
+            $user->password = Hash::make($data['password']);
+            $user->save();
+        }
     
-
-
+        return $user;
+    }
     
 }

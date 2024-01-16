@@ -39,20 +39,22 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            
         ],
 
         'self-register' => [
             \App\Http\Middleware\SelfRegisterMiddleware::class,
         ],
-        'librarian' => [
-            \App\Http\Middleware\LibrarianMiddleware::class,
+        'librarian.api' =>[ 
+            \App\Http\Middleware\LibrarianApiMiddleware::class
         ],
-        'librarianUI' => [
+        'librarian.ui' => [
             \App\Http\Middleware\LibrarianInterfaceMiddleware::class,
         ],
+        
     ];
 
     /**

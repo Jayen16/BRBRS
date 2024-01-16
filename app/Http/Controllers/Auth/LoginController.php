@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
  
@@ -47,26 +48,8 @@ class LoginController extends Controller
         return 'username';
     }
 
-    // public function login(Request $request)
-    // {
-    //     $this->validateLogin($request);
 
-    //     if (Auth::attempt($this->credentials($request))) {
-
-    //         $user = Auth::user(); 
-
-    //             if ($user->email_verified_at !==null) {
-
-    //                 return redirect()->route('dashboard');
-    //             } else{
-    //                 return redirect()->route('login');
-    //             }
-    //     }
-
-    //     // Handle unsuccessful login attempts
-    //     return $this->sendFailedLoginResponse($request);
-    // }
-
+    
     public function login(Request $request)
     {
         $credentials = $request->only('username', 'password');
@@ -75,18 +58,17 @@ class LoginController extends Controller
             $user = Auth::user();
     
             if ($user->email_verified_at !== null) {
-            
-                $token = $user->createToken('authToken')->plainTextToken;
     
+                $token = $user->createToken('authToken')->plainTextToken;
+                
                 return response()->json([
                     'message' => 'Login successful',
                     'dashboard_url' => '/dashboard',
                     'user' => $user,
-                    'token' => $token 
+                    'bearer_token' => $token  
                 ], 200);
-                
+    
             } else {
-
                 // pag email not verified
                 return response()->json([
                     'message' => 'Email not yet verified',
@@ -95,67 +77,70 @@ class LoginController extends Controller
             }
         }
     
-         //unsuccessful login attempts to
-
+        // Unsuccessful login attempts
         return response()->json([
             'message' => 'Invalid credentials',
             'dashboard_url' => '/login',
         ], 401);
-
     }
 
-    // public function login(Request $request)
+
+    // public function logout(Request $request)
     // {
+    //     $this->guard()->logout();
+    
+    //     $request->session()->invalidate();
+    
+    //     $request->session()->regenerateToken();
+    
+    //     if ($request->expectsJson() || $request->ajax()) {
+    //         return response()->json(['message' => 'Logout successful'], 204);
+    //     }
+    
+    //     return redirect('/');
+    // }
+    
 
-    //     if(Auth::attempt(['username' => $request->username, 'password' => $request->password]))
-    //     { 
-    //         $user = Auth::user(); 
-    //         $success['token'] =  $user->createToken('BRBRS-Token')->plainTextToken; 
-    //         $success['name'] =  $user->name;
-    //         return $this->sendResponse($success, 'User login successfully.');
-    //     } else { 
-    //         return $this->sendError('Unauthorised.', ['error'=>'Unauthorized']);
-    //     } 
+    // public function logout(Request $request)
+    // {
+    
+    //     if (Auth::check()) {
+    
+    //             Auth::guard('web')->logout();
+    //             return redirect()->route('login');
+            
+    //     } else {
+    //         return redirect()->route('login');
+ 
+    //     }
+    // }
 
 
-        // $credentials = $request->only('username', 'password');
+  
+    
+    public function logout(Request $request)
+        {
+            if (Auth::check()) {
+                $user = Auth::user();
 
-        // if (Auth::attempt($credentials)) {
-        //     $user = Auth::user();
+                // Revoke all tokens associated with the user
+                $user->tokens->each(function ($token, $key) {
+                    $token->delete();
+                });
 
-        //     if ($user->email_verified_at !== null) {
-        //         $token = $user->createToken('authToken')->plainTextToken;
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'Logout successful']);
+                }
+                Auth::guard('web')->logout();
+                return redirect()->route('login');
+                
+            } else {
+                return response()->json(['message' => 'Unauthenticated.'], 401);
+            }
+        }
+    
 
-        //         if ($user->tokens->isEmpty()) {
-        //             return response()->json([
-        //                 'message' => 'Login successful. Token created.',
-        //                 'dashboard_url' => '/dashboard',
-        //                 'user' => $user,
-        //                 'token' => $token 
-        //             ], 200);
-        //         } else {
-        //             return response()->json([
-        //                 'message' => 'Login successful',
-        //                 'dashboard_url' => '/dashboard',
-        //                 'user' => $user,
-        //                 'token' => $token 
-        //             ], 200);
-        //         }
-        //     } else {
-        //         // If the email is not verified, return an appropriate response
-        //         return response()->json([
-        //             'message' => 'Email not yet verified',
-        //             'dashboard_url' => '/login',
-        //         ], 401);
-        //     }
-        // }
-
-        // // Unsuccessful login attempts
-        // return response()->json([
-        //     'message' => 'Invalid credentials',
-        //     'dashboard_url' => '/login',
-        // ], 401);
-    }
+}
         
 // }
 

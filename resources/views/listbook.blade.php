@@ -138,7 +138,7 @@
             //DISPLAY DYNAMIC CATEGORY FROM DATABASE SA GILID TO BOOK CATEGORIES 
             function fetchCategoriesAndPopulate() {
             $.ajax({
-                url: '{{ route("CategoryList") }}',
+                url: '/api/category/display',
                 method: 'GET',
                 success: function(response) {
 

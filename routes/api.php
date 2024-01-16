@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 // use App\Http\Controllers\PatronController;
@@ -14,48 +15,58 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\PatronController;
 
 
+Route::post('/auth/login', [AuthController::class, 'login'])->name('login');
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
-
-// Route::middleware('auth:sanctum')->group( function () {
-//     return $request->user();
-// });
-
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/register', [RegisterController::class, 'register']);
+Route::post('/auth/register', [AuthController::class, 'register'])->name('registerLibrarian');
 
 
-// Route::middleware(['librarian'])->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
+    // Route to get the authenticated user
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
 
-
-//PATRON
-Route::get('/patron', [PatronController::class, 'index'])->name('PatronsList'); //index
-Route::post('/addpatrons', [PatronController::class, 'store'])->name('addpatrons'); //store and update   <---- *separate the store and update
-Route::get('/editpatron/{id}', [PatronController::class, 'show'])->name('editpatron'); //show
-Route::delete('/deletepatron/{id}', [PatronController::class, 'destroy'])->name('deletepatron');  // delete
-Route::get('/patron/{id}/{book_id}', [PatronController::class, 'getPatronAndBook'])->name('get_patron');// retrieve both patron and book
-
-//DASHBOARD
-Route::get('/dashboard/content', [DashboardContent::class, 'content'])->name('dashboard.content');//index dashboard content
-
- 
-//CATEGORY
-
-Route::get('/category/display', [CategoryController::class, 'index'])->name('CategoryList'); // index
-Route::post('/add/category', [CategoryController::class, 'store'])->name('category.add'); //store
-Route::delete('/delete/category/{category}', [CategoryController::class, 'destroy'])->name('category.delete'); //destroy
-
-
-//BOOK
-Route::get('/listbooks/display', [BooksController::class, 'index'])->name('BookList'); // index
-Route::get('/edit/book/{id}', [BooksController::class, 'editBook'])->name('editbook'); // show book
-Route::post('/addbooks', [BooksController::class, 'store'])->name('addbooks'); // store and update book <---- *separate the store and update
+    Route::get('/auth/user', [AuthController::class, 'user']);
+    //accept application/json, authorizeion Bearer + 
+    Route::get('/auth/logout', [AuthController::class, 'logout'])->name('logout');
+    
 
 
 
+});
 
-// });
+
+Route::middleware(['auth:sanctum'])->group(function () {
+
+
+    //PATRON
+    Route::get('/patron', [PatronController::class, 'index'])->name('PatronsList'); //index
+    Route::post('/addpatrons', [PatronController::class, 'store'])->name('addpatrons'); //store and update   <---- *separate the store and update
+    Route::get('/editpatron/{id}', [PatronController::class, 'show'])->name('editpatron'); //show
+    Route::delete('/deletepatron/{id}', [PatronController::class, 'destroy'])->name('deletepatron');  // delete
+    Route::get('/patron/{id}/{book_id}', [PatronController::class, 'getPatronAndBook'])->name('get_patron');// retrieve both patron and book
+
+    //DASHBOARD
+    Route::get('/dashboard/content', [DashboardContent::class, 'content'])->name('dashboard.content');//index dashboard content
+
+    
+    //CATEGORY
+
+    Route::get('/category/display', [CategoryController::class, 'index'])->name('CategoryList'); // index
+    Route::post('/add/category', [CategoryController::class, 'store'])->name('category.add'); //store
+    Route::delete('/delete/category/{category}', [CategoryController::class, 'destroy'])->name('category.delete'); //destroy
+
+
+    //BOOK
+    Route::get('/listbooks/display', [BooksController::class, 'index'])->name('BookList'); // index
+    Route::get('/edit/book/{id}', [BooksController::class, 'editBook'])->name('editbook'); // show book
+    Route::post('/addbooks', [BooksController::class, 'store'])->name('addbooks'); // store and update book <---- *separate the store and update
+
+
+    //BORROW HISTORY
+    Route::get('/history/borrow', [BorrowReturnController::class, 'displayBorrow'])->name('BorrowHistory');
+    Route::get('/history/return', [BorrowReturnController::class, 'displayReturn'])->name('ReturnHistory');
+
+
+});
     // Route::get('/api/patron/display', [PatronController::class, 'displayPatrons'])->name('PatronsList');
