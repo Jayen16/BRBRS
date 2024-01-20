@@ -15,9 +15,12 @@ return new class extends Migration
     //         $table->id();
     //         $table->string("patron_id")->nullable();
     //         $table->string("school_id")->nullable();
-    //         $table->string('name')->nullable();
-    //         $table->string('course')->nullable();
+    //         $table->string('first_name')->nullable();
+    //         $table->string('middle_name')->nullable();
+    //         $table->string('last_name')->nullable();
+    //         $table->string('program')->nullable();
     //         $table->string('sex')->nullable();
+    //         $table->string('registration_status')->nullable();
     //         $table->string('type')->nullable();
     //         $table->timestamps();
     //     });

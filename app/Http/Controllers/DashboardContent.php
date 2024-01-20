@@ -12,7 +12,7 @@ class DashboardContent extends Controller
 {
 
 
-    public function content()
+    public function index()
     {
         $borrowedBooksCount = BorrowHistory::where('borrow_status', '!=', 'returned')->count();
         $returnedBooksCount = ReturnHistory::count();
@@ -26,8 +26,7 @@ class DashboardContent extends Controller
             'librarian_count' => $numberOfLibrarians,
         ]);
 
-        // hindi pa nafefetch ng AJAX to for dashboard , pending task to
-        // wala pa sariling icon yung sa user , standby lang to 
+ 
     }
 
 }

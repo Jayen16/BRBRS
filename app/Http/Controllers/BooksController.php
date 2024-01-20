@@ -7,6 +7,7 @@ use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class BooksController extends Controller
@@ -22,67 +23,85 @@ class BooksController extends Controller
 
 
 
-    public function index(Request $request)
+    public function index(Request $request , $category)
     {
-        if ($request->ajax()) {
-            $data = Book::latest()->get();
-    
-            return DataTables::of($data)
-                    ->addIndexColumn()
-                    ->addColumn('action', function ($row) {
-                        $btn = '<button x-on:click="showModal = true" href="javascript:void(0)" id="createNewBook"  data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook" >Edit</button>';
-    
-                        $btn .= ' <button href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</button>';
-    
-                        $btn .= ' <a href="/description/'.$row->id.'" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Borrow" class="btn btn-warning btn-sm borrowBook">Transaction</a>';
-    
-                        return $btn;
-                    })
-                    ->rawColumns(['action'])
-                    ->make(true);
 
-        }elseif ($request->expectsJson() || $request->isJson() || $request->wantsJson() || $request->acceptsJson()) {
-            $data = Book::latest()->get();
-            return response()->json($data, Response::HTTP_OK);
+        
+        $category = $request->input('category');
+        $limit = $request->input('limit', 1);
+        $search = $request->input('search');
+        $page = $request->input('page', 1);
+        $sortColumn = $request->input('sortColumn', 'id');
+        $sortOrder = $request->input('sortOrder', 'asc');
 
-        }else {
-            return response()->json(['error' => 'Invalid Request'], 400);
+        
+        $query = Book::query();
+
+        
+        if ($category) {
+            $query->where('category', $category);
         }
+
+
+    
+        if ($search) {
+            $query->where(function ($innerQuery) use ($search) {
+                $innerQuery->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('status', 'like', '%' . $search . '%')
+                    ->orWhere('author', 'like', '%' . $search . '%');
+            });
+        }
+    
+
+        $result = $query->paginate($limit, ['*'], 'page', $page);
+
+        return response()->json([
+            'data' => $result->items(),
+            'links' => $result->links()->toHtml(),
+        ]);
+
+    
+        // return response()->json($result);
     }
     
-
-
-    public function show($category)
-        {
-            
+    public function showCategory(Request $request, $category)
+    {
+        $query = Book::query();
+    
         // Check if the selected category exists in the database
-        if ($category === null || $category == 'All Categories') {
-            $books = Book::all(); 
-        } else {
-            $categoryExists = Book::where('category', $category)->exists();
-        
-            if (!$categoryExists) {
-                $books = collect(); 
-            } else {
-                $books = Book::where('category', $category)->get();
-            }
+        if ($category !== null && $category != 'All Categories') {
+            $query->where('category', $category);
         }
-        
-        return DataTables::of($books)
-            ->addIndexColumn()
-            ->addColumn('action', function ($row) {
-                $btn = '<button x-on:click="showModal = true" href="javascript:void(0)" id="createNewBook" data-toggle="tooltip" data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook">Edit</button>';
-        
-                $btn .= ' <button href="javascript:void(0)" data-toggle="tooltip" data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</button>';
-        
-                $btn .= ' <a href="/api/description/'.$row->id.'" data-toggle="tooltip" data-id="'.$row->id.'" data-original-title="Borrow" class="btn btn-warning btn-sm borrowBook">Transaction</a>';
-        
-                return $btn;
-            })
-            ->rawColumns(['action'])
-            ->make(true);  
+    
+        // Apply search filter if search value is present
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('title', 'like', '%' . $search . '%')
+                          ->orWhere('status', 'like', '%' . $search . '%')
+                          ->orWhere('author', 'like', '%' . $search . '%');
+                // Add more fields as needed
+            });
+        }
+    
+        // You can add additional filters here if needed
+    
+        // Sort by default if no sort parameters are provided
+        $sortColumn = $request->input('sortColumn', 'id');
+        $sortOrder = $request->input('sortOrder', 'asc');
+        $query->orderBy($sortColumn, $sortOrder);
+    
+        // Paginate the result
+        $limit = $request->input('limit', 10); // Adjust the default limit as needed
+        $result = $query->paginate($limit);
+    
+        return response()->json([
+            'data' => $result->items(),
+            'links' => $result->links()->toHtml(),
+        ]);
+    }
 
-        }
+   
 
 
         public function store(Request $request)
@@ -112,36 +131,27 @@ class BooksController extends Controller
                     $uploadedImage = $request->file('book_image');
                     $storagePath = 'books';
                     $title = $request->input('title');
-                    
+        
                     $extension = $uploadedImage->getClientOriginalExtension();
-                
+        
                     $newFileName = $title . '.' . $extension;
-                
+        
                     $uploadedImage->storeAs($storagePath, $newFileName, 'public');
-                
+        
                     $validatedData['book_image'] = $newFileName;
                 } else {
                     $newFileName = 'default-bookcover.jpg';
                     $validatedData['book_image'] = $newFileName;
                 }
-                
-                // Check if book_number_id exists in the request
-                if ($request->has('id')) {
-                    $book = Book::find($request->book_number_id);
-                    
-                    if ($book) {
-                        $book->update($validatedData);
-                    }
-                } else {
-                    $book = Book::create($validatedData);
-                }
+        
+                $book = Book::create($validatedData);
         
                 if ($book) {
                     return response()->json(['success' => 'Book saved successfully.', 'book' => $book]);
                 } else {
                     return response()->json(['error' => 'Failed to save book.']);
                 }
-                
+        
             } catch (\Exception $e) {
                 return response()->json([
                     'error' => 'Failed to save book.',
@@ -151,9 +161,70 @@ class BooksController extends Controller
         }
 
 
+        
+        public function update(Request $request, $id)
+        {
+            if (!$request->isMethod('put')) {
+                return response()->json(['error' => 'Method Not Allowed'], 405);
+            }
+        
+            try {
+                $book = Book::find($id);
+        
+                if (!$book) {
+                    return response()->json(['error' => 'Book not found'], 404);
+                }
+        
+                $validatedData = $request->validate([
+                    'title' => 'nullable|string',
+                    'author' => 'nullable|string',
+                    'location_rack' => 'nullable|string',
+                    'status' => 'nullable|string',
+                    'isbn' => 'nullable|string',
+                    'category' => 'nullable|string',
+                    'condition' => 'nullable|string',
+                    'book_image' => 'nullable|image|mimes:jpeg,png,jpg',
+                    'edition' => 'nullable|string',
+                    'publisher' => 'nullable|string',
+                    'copyright_year' => 'nullable|numeric',
+                    'accession_number' => 'nullable|string',
+                    'description' => 'nullable|string',
+                ]);
+        
+                if ($request->hasFile('book_image')) {
+                    // Delete the old image if it exists
+                    if ($book->book_image && Storage::disk('public')->exists('books/' . $book->book_image)) {
+                        Storage::disk('public')->delete('books/' . $book->book_image);
+                    }
+        
+                    // Handle image upload and update logic
+                    $uploadedImage = $request->file('book_image');
+                    $storagePath = 'books';
+                    $title = $request->input('title');
+                    $extension = $uploadedImage->getClientOriginalExtension();
+                    $newFileName = $title . '.' . $extension;
+                    $uploadedImage->storeAs($storagePath, $newFileName, 'public');
+                    $validatedData['book_image'] = $newFileName;
+                }
+        
+                $book->update($validatedData);
+        
+                return response()->json(['success' => 'Book updated successfully.', 'book' => $book]);
+        
+            } catch (\Exception $e) {
+                return response()->json([
+                    'error' => 'Failed to update book.',
+                    'message' => $e->getMessage()
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        }
+        
+        
+        
 
 
-    public function editBook($id)
+
+    public function show ($id)
     {
         $book = Book::find($id);
     

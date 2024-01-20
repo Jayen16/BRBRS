@@ -105,7 +105,7 @@
             
             if (rfidId !== '') {
                 $.ajax({
-                    url: '/patron/' + rfidId + '/' + bookId,
+                    url: '/api/patron/' + rfidId + '/' + bookId,
                     type: 'GET',
                     dataType: 'json',
                     success: function(data) {
@@ -142,7 +142,7 @@
         var options = { month: 'short', day: 'numeric', year: 'numeric' };
         var formattedDate = date.toLocaleDateString('en-US', options);
 
-        $('#borrower_name').val(data.patron.name || '');
+        $('#borrower_name').val(data.patron.first_name +' '+ data.patron.last_name  || '');
         $('#borrower_type').val(data.patron.type || '');
         $('#borrower_book').val(data.book.title || '');
         $('#borrower_time').val(formattedDate || '');
@@ -161,7 +161,7 @@
 
     function performTransaction(transaction,bookId, rfidId) {
         $.ajax({
-            url: '/description/' + transaction + '/' + bookId + '/' + rfidId,
+            url: '/api/description/' + transaction + '/' + bookId + '/' + rfidId,
             type: 'GET',
             success: function(response) {
                 if (response.success) {

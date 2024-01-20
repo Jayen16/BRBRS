@@ -30,7 +30,7 @@
                                     <div class="w-full relative mx-auto text-gray-600">
                                         <input
                                             class=" w-full border-2 bg-white h-10 px-5 rounded-md text-lg focus:outline p-6"
-                                            type="search" name="search" placeholder="Search here..." id="searchInput">
+                                            type="searchBorrow" name="search" placeholder="Search here..." id="searchInput">
                                         <button type="submit" class="absolute right-0 top-0 mt-4 mr-4">
                                             <svg class="text-gray-600 h-4 w-4 fill-current"
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -44,10 +44,10 @@
                                         </button>
                                     </div>
                                 </div>
-                                <div class="float-right">
+                                {{-- <div class="float-right">
                                     <button id='downloadPDF' class="bg-green-700 rounded p-3 text-white"> History PDF </button>
                              
-                                </div>
+                                </div> --}}
                                 <table class="w-full bg-white border border-gray-200 rounded-md shadow-md mt-2" id="borrow-table">
                                     <thead class="bg-green-800 text-white text-left sticky top-0 z-10">
                                         <tr class="bg-green-800 text-white text-center">
@@ -69,17 +69,13 @@
                                         </tr>
                                     </thead>
 
-                                    <tbody id="tableBody">
-                                        <tr id="noRecordsMessage" class="text-center ">
-                                            <td class="py-8 px-8 border-b border-gray-200 text-gray-500"
-                                                colspan="5">
-                                                No existing records found.
-                                            </td>
-                                        </tr>
+                                    <tbody id="tableBodyBorrowed">
+                                     
                                     </tbody>
                                 </table>
                             </div>
-                            </div>
+                            <div class="mt-4" id="pagination-container-borrow"></div>
+                         </div>
 
                             <div x-show="openTab === 2"
                                 class="w-full shadow-md mt-1 overflow-y-auto max-h-[70vh]">
@@ -88,7 +84,7 @@
                                     <div class="w-full relative mx-auto text-gray-600">
                                         <input
                                             class=" w-full border-2 bg-white h-10 px-5 rounded-md text-lg focus:outline p-6"
-                                            type="search" name="search" placeholder="Search here..." id="searchReturnInput">
+                                            type="searchReturn" name="search" placeholder="Search here..." id="searchReturnInput">
                                         <button type="submit" class="absolute right-0 top-0 mt-4 mr-4">
                                             <svg class="text-gray-600 h-4 w-4 fill-current"
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -127,35 +123,27 @@
                                     </thead>
 
                                     <tbody id="tableBodyReturned">
-                                        <tr id="noRecordsMessageReturned" class="text-center ">
-                                            <td class="py-8 px-8 border-b border-gray-200 text-gray-500"
-                                                colspan="5">
-                                                No existing records found.
-                                            </td>
-                                        </tr>
+                      
                                         <tr class="text-center">
                                             <td class="py-2 px-8 border-b border-gray-200 font-semibold">
-                                                <a href="#" class="clickable-cell">7881652752</a>
                                             </td>
                                             <td class="py-2 px-8 border-b border-gray-200 font-semibold">
-                                                <a href="#" class="clickable-cell">346457282</a>
                                             </td>
                                             <td class="py-2 px-8 border-b border-gray-200">
-                                                <a href="#" class="clickable-cell">Juan dela Cruz</a>
                                             </td>
                                             <td class="py-2 px-8 border-b border-gray-200">
-                                                <a href="#" class="clickable-cell">Student</a>
                                             </td>
                                             <td class="py-2 px-8 border-b border-gray-200">
-                                                <a href="#" class="clickable-cell">Atomic Habits</a>
                                             </td>
                                             <td class="py-2 px-8 border-b border-gray-200">
-                                                <a href="#" class="clickable-cell">11-28-2023</a>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
+
                             </div>
+                            <div id="pagination-container-return" class="mt-4"></div>
+
                         </div>
                     </div>
                 </div>
@@ -175,139 +163,138 @@
 
 <script type="text/javascript">
 
-  
-
-   $(function() {
-
- 
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    var borrowTable = $('#borrow-table').DataTable({
-    dom: 'lrtip',
-    processing: true,
-    serverSide: true,
-    autoWidth: false,
-    ajax: {
-        url: "{{ route('BorrowHistory') }}",
-        type: 'GET',
-        data: function (d) {
-            d.search = $('#searchInput').val(); 
-        }
-    },
-    columns: [
-        { data: 'id', name: 'id' },
-        { data: 'patron_name', name: 'patron_name', render: function(data) {
-            return capitalizeFirstLetter(data); 
-        }},
-        { data: 'patron_type', name: 'patron_type', render: function(data) {
-            return capitalizeFirstLetter(data);
-        }},
-        { data: 'book_title', name: 'book_title', render: function(data) {
-            return capitalizeFirstLetter(data); 
-        }},
-        { data: 'created_at', name: 'created_at', render: function(data) {
-            return formatDate(data); 
-        }}
-    ],
-    columnDefs: [
-        {
-            targets: [1, 2, 3], 
-            render: function(data) {
-                return capitalizeFirstLetter(data); 
-            }
-        },
-        {
-            targets: 4, 
-            render: function(data) {
-                return formatDate(data);
-            }
-        }
-    ],  buttons: [
-            'print'
-        ]
-  
-});
+$(document).ready(function () {
+    fetchReturnHistory();
+    fetchBorrowHistory();
 
 
-var returnTable = $('#return-table').DataTable({
-        dom: 'lrtip',
-        processing: true,
-        serverSide: true,
-        autoWidth: false,
-        ajax: {
-            url: "{{ route('ReturnHistory') }}",
+    function fetchBorrowHistory(page = 1) {
+        var tableBody = $('#tableBodyBorrowed');
+        tableBody.empty();
+
+        $.ajax({
+            url: '/api/history/borrow',
             type: 'GET',
-            data: function (d) {
-                d.search = $('#searchReturnInput').val(); 
-            }
-        },
-        columns: [
-            { data: 'id', name: 'id' },
-            { data: 'borrow_id', name: 'borrow_id'},
-            { data: 'patron_name', name: 'patron_name', render: function(data) {
-                return capitalizeFirstLetter(data); 
-            }},
-            { data: 'patron_type', name: 'patron_type', render: function(data) {
-                return capitalizeFirstLetter(data);
-            }},
-          
-            { data: 'book_title', name: 'book_title', render: function(data) {
-                return capitalizeFirstLetter(data); 
-            }},
-            { data: 'created_at', name: 'created_at', render: function(data) {
-                return formatDate(data); 
-            }}
-        ],
-        columnDefs: [
-            {
-                targets: [2,3,4], 
-                render: function(data) {
-                    return capitalizeFirstLetter(data); 
-                }
+            dataType: 'json',
+            data: {
+                sortColumn: 'borrower_id',
+                sortOrder: 'asc',
+                search: '',
+                limit: 10,
+                page: page,
             },
-            {
-                targets: 5, 
-                render: function(data) {
-                    return formatDate(data);
+            success: function (data) {
+                if (data.data.length > 0) {
+                    $.each(data.data, function (index, borrow) {
+                        // Access related 'borrower' data
+                        var patronName = borrow.borrower ? borrow.borrower.first_name+ ' ' + borrow.borrower.last_name: '';
+                        var patronType = borrow.borrower ? borrow.borrower.type : '';
+                        var bookTitle = borrow.book ? borrow.book.title : '';
+
+                        tableBody.append(
+                            '<tr class="text-center">' +
+                            '<td class="py-3 px-8 border-b border-gray-200">' + (index+1) + '</td>' +
+                            '<td class="py-3 px-8 border-b border-gray-200">' + patronName + '</td>' +
+                            '<td class="py-3 px-8 border-b border-gray-200">' + patronType + '</td>' +
+                            '<td class="py-3 px-8 border-b border-gray-200">' + bookTitle + '</td>' +
+                            '<td class="py-3 px-8 border-b border-gray-200">' + formatDate(borrow.created_at) + '</td>' +
+                            '</tr>'
+                        );
+                    });
+                } else {
+                    // Display a message if no records found
+                    tableBody.append(
+                        '<tr class="text-center">' +
+                        '<td class="py-8 px-8 border-b border-gray-200 text-gray-500" colspan="5">' +
+                        'No existing records found.' +
+                        '</td>' +
+                        '</tr>'
+                    );
                 }
-        }
-    ],
-    buttons: [
-        'pdf'
-    ]
-});
 
-    // Event listener for the search input
-        $('#searchInput').on('keyup', function() {
-            borrowTable.search($(this).val()).draw(); // Trigger search and redraw the table
-        });
-
-
-        $('#searchReturnInput').on('keyup', function() {
-            returnTable.search($(this).val()).draw(); // Trigger search and redraw the return table
-        });
-
-
-
-    function capitalizeFirstLetter(str) {
-        return str.replace(/\b\w/g, function(match) {
-            return match.toUpperCase();
+                // Corrected container ID here
+                $('#pagination-container-borrow').html(data.links);
+            },
+            error: function (error) {
+                console.log('Error fetching data:', error);
+            }
         });
     }
+
+    // Event listener for pagination links
+    $(document).on('click', '#pagination-container-borrow a', function (e) {
+        e.preventDefault();
+        var page = $(this).attr('href').split('page=')[1];
+        fetchBorrowHistory(page);
+    });
+
+    function fetchReturnHistory(page = 1) {
+        var tableBody = $('#tableBodyReturned');
+        var paginationContainer = $('#pagination-container-return');
+        tableBody.empty();
+
+        $.ajax({
+            url: '/api/history/return',
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                sortColumn: 'borrower_id',
+                sortOrder: 'asc',
+                search: '',
+                limit: 10,
+                page: page,
+            },
+            success: function (data) {
+
+                console.log(data);
+                if (data && data.data && data.data.length > 0) {
+                    $.each(data.data, function (index, returnHistory) {
+                        tableBody.append(
+                            '<tr class="text-center">' +
+                            '<td class="py-3 px-8 border-b border-gray-200">' + (index + 1) + '</td>' +
+                            '<td class="py-3 px-8 border-b border-gray-200">' + returnHistory.borrow_id + '</td>' +
+                            '<td class="py-3 px-8 border-b border-gray-200">' + returnHistory.borrower.first_name +" " + returnHistory.borrower.last_name  + '</td>' +
+                            '<td class="py-3 px-8 border-b border-gray-200">' + returnHistory.borrower.type + '</td>' +
+                            '<td class="py-3 px-8 border-b border-gray-200">' + returnHistory.book.title + '</td>' +
+                            '<td class="py-3 px-8 border-b border-gray-200">' + formatDate(returnHistory.created_at) + '</td>' +
+                            '</tr>'
+                        );
+                    });
+
+
+                } else {
+                    tableBody.append(
+                        '<tr class="text-center">' +
+                        '<td class="py-8 px-8 border-b border-gray-200 text-gray-500" colspan="6">' +
+                        'No existing records found.' +
+                        '</td>' +
+                        '</tr>'
+                    );
+                }
+
+                $('#pagination-container-return').html(data.links);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching data:', error);
+            }
+        });
+    }
+
+        $(document).on('click', '#pagination-container-return    a', function (e) {
+        e.preventDefault();
+        var page = $(this).attr('href').split('page=')[1];
+        fetchReturnHistory(page);
+    });
+
 
     function formatDate(dateString) {
         const date = new Date(dateString);
         const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
         return date.toLocaleDateString('en-US', options);
     }
+
+
 });
-
-
-
 </script>
 
 

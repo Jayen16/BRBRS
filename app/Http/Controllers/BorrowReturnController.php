@@ -21,97 +21,99 @@ class BorrowReturnController extends Controller
     }
 
 
-    public function displayBorrow(Request $request)
-    {
-        if ($request->ajax()) {
-            $data = BorrowHistory::query();
-            
     
+    public function showBorrowHistory(Request $request)
+    {
+        $page = $request->input('page', 1);
+        $limit = max($request->input('limit', ), 1); // Ensure a minimum limit of 1
+        $search = $request->input('search');
+    
+        if ($request->expectsJson()) {
+            $query = BorrowHistory::with(['borrower', 'book']);
+            
             // Apply search filter if search value is present
-            if ($request->has('search') && !empty($request->input('search'))) {
+            if ($request->filled('search')) {
                 $search = $request->input('search');
-                $data->where(function ($query) use ($search) {
-                    $query->where('id', 'like', '%' . $search . '%')
-                        ->orWhereHas('borrower', function ($query) use ($search) {
-                            $query->where('name', 'like', '%' . $search . '%')
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('id', 'like', '%' . $search . '%')
+                        ->orWhereHas('borrower', function ($subQuery) use ($search) {
+                            $subQuery->where('name', 'like', '%' . $search . '%')
                                 ->orWhere('type', 'like', '%' . $search . '%');
                         })
-                        ->orWhereHas('book', function ($query) use ($search) {
-                            $query->where('title', 'like', '%' . $search . '%');
+                        ->orWhereHas('book', function ($subQuery) use ($search) {
+                            $subQuery->where('title', 'like', '%' . $search . '%');
                         });
                 });
             }
     
-            // Fetch data with DataTables query builder
-            return DataTables::of($data)
-                ->addColumn('patron_name', function ($borrowHistory) {
-                    return $borrowHistory->borrower->name;
-                })
-                ->addColumn('patron_type', function ($borrowHistory) {
-                    return $borrowHistory->borrower->type;
-                })
-                ->addColumn('book_title', function ($borrowHistory) {
-                    return $borrowHistory->book->title;
-                })
-                ->make(true);
+            // Paginate the result
+            $result = $query->paginate($limit, ['*'], 'page', $page);
+    
+            // Add pagination links to the result
+            $result->appends(['search' => $search]); // Append search parameter to pagination links
+    
+            return response()->json([
+                'data' => $result->items(),
+                'links' => $result->links()->toHtml(),
+            ]);
         } else {
             return response()->json(['error' => 'Invalid Request'], 400);
         }
     }
-
     
     
 
+    
+
+  
    
-    public function displayReturn(Request $request)
+    public function showReturnHistory(Request $request)
     {
-        if ($request->ajax()) {
-            $data = ReturnHistory::query();
-            
+        $page = $request->input('page', 1);
+        $limit = max($request->input('limit', 10), 1); // Ensure a minimum limit of 1
+        $search = $request->input('search');
     
+        if ($request->expectsJson()) {
+            $query = ReturnHistory::with(['borrower', 'book', 'borrowHistory']);
+            
             // Apply search filter if search value is present
-            if ($request->has('search') && !empty($request->input('search'))) {
+            if ($request->filled('search')) {
                 $search = $request->input('search');
-                $data->where(function ($query) use ($search) {
-                    $query->where('id', 'like', '%' . $search . '%')
-                        ->orWhereHas('borrower', function ($query) use ($search) {
-                            $query->where('name', 'like', '%' . $search . '%')
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('id', 'like', '%' . $search . '%')
+                        ->orWhereHas('borrower', function ($subQuery) use ($search) {
+                            $subQuery->where('name', 'like', '%' . $search . '%')
                                 ->orWhere('type', 'like', '%' . $search . '%');
                         })
-                        ->orWhereHas('borrowHistory', function ($query) use ($search) {
-                            $query->where('borrow_id', 'like', '%' . $search . '%'); 
+                        ->orWhereHas('borrowHistory', function ($subQuery) use ($search) {
+                            $subQuery->where('borrow_id', 'like', '%' . $search . '%');
                         })
-                        ->orWhereHas('book', function ($query) use ($search) {
-                            $query->where('title', 'like', '%' . $search . '%');
+                        ->orWhereHas('book', function ($subQuery) use ($search) {
+                            $subQuery->where('title', 'like', '%' . $search . '%');
                         });
                 });
-                
             }
     
-            // Fetch data with DataTables query builder
-            return DataTables::of($data)
-                ->addColumn('id', function ($returnHistory) {
-                    return $returnHistory->borrowHistory->id;
-                })
-                ->addColumn('patron_name', function ($returnHistory) {
-                    return $returnHistory->borrower->name;
-                })
-                ->addColumn('borrow_id', function ($returnHistory) {
-                    return $returnHistory->borrowHistory->id;
-                })
-                ->addColumn('patron_type', function ($returnHistory) {
-                    return $returnHistory->borrower->type;
-                })
-                ->addColumn('book_title', function ($returnHistory) {
-                    return $returnHistory->book->title;
-                })
-                ->make(true);
+            // Paginate the result
+            $result = $query->paginate($limit, ['*'], 'page', $page);
+    
+            // Add pagination links to the result
+            $result->appends(['search' => $search]); // Append search parameter to pagination links
+    
+            return response()->json([
+                'data' => $result->items(),
+                'links' => $result->links()->toHtml(),
+            ]);
         } else {
             return response()->json(['error' => 'Invalid Request'], 400);
         }
     }
+    
+    
 
 
+
+  
 
 
     public function show($id) {

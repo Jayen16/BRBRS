@@ -164,26 +164,22 @@
         
         function fetchBookDetails() {
             var bookId = {{ $id }}; // Make sure $id exists and is passed correctly
-            var apiUrl = '/description/book/' + bookId; // Replace with your API endpoint
 
-        $.ajax({
-            url: apiUrl,
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-      
-                updateBookDetails(response.book);       
-  
-            },
-            error: function(xhr, status, error) {
-                console.error(xhr.responseText);
-            }
-        });
+            $.ajax({
+                url: '/api/description/book/' + bookId,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    updateBookDetails(response.book);       
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
         }
 
         function updateBookDetails(selectedBook) {
 
-                 
                 // Populate HTML elements with book details
                 $('#book-title').text(selectedBook.title);
                 document.title = $('#book-title').text(); // title ng page
@@ -229,7 +225,7 @@
 
         function fetchBorrowingHistory() {
             $.ajax({
-                url: '/history/book/{{ $id }}',
+                url: '/api/history/book/{{ $id }}',
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
@@ -241,6 +237,7 @@
                 }
             });
         }
+
 
 
 
@@ -259,7 +256,7 @@
                 historyArray.forEach(function(historyItem) {
                     var newRow = $('<tr class="text-center">' +
                         '<td class="py-1 px-8 border-b border-gray-200 font-semibold"><p class="borrower_no"></p></td>' +
-                        '<td class="py-1 px-8 border-b border-gray-200"><p class="borrower_name"></p></td>' +
+                        '<td class="py-1 px-8 border-b border-gray-200 w-[24rem]" ><p class="borrower_name" ></p></td>' +
                         '<td class="py-1 px-8 border-b border-gray-200"><p class="borrower_type"></p></td>' +
                         '<td class="py-1 px-8 border-b border-gray-200"><p class="borrow_status"></p></td>' +
                         '<td class="py-1 px-8 border-b border-gray-200"><p class="borrower_returned"></p></td>' +
@@ -272,7 +269,7 @@
                     status = status.charAt(0).toUpperCase() + status.slice(1);
 
                     newRow.find('.borrower_no').text(historyItem.id);
-                    newRow.find('.borrower_name').text(historyItem.borrower.name);
+                    newRow.find('.borrower_name').text(historyItem.borrower.first_name + ' ' + historyItem.borrower.last_name);
                     newRow.find('.borrower_type').text(historyItem.borrower.type);
                     newRow.find('.borrow_status').text(status);
 

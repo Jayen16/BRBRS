@@ -17,16 +17,10 @@
                     </p>
                     <div class="w-full max-h-[75vh] overflow-y-auto">
                  
-                        <ul class="justify-center font-medium text-lg px-2 py-0 text-left">
-                            <a href="{{route('showcategory', 'All Categories')}}" class= "category-link w-full md:w-auto" data-category="All Categories">
-                                <li class="hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left mt-4">
-                                    All
-                                </li>
-                            </a>                    
-                        </ul>
+                  
                         <ul class="categoryClass justify-center font-medium text-lg px-2 py-0 text-left">
-                            <a class= "category-link">                             
-                            </a>                    
+                            <a class= "category-link"> </a>                    
+
                         </ul>
 
                     </div>
@@ -55,7 +49,6 @@
 
                     <div>
 
-          
                             <div x-data="{ showModal: false }" class="mb-4 flex justify-end" id="ajaxModal">
 
                                 <button x-on:click="showModal = true" href="javascript:void(0)" id="createNewBook"
@@ -73,7 +66,7 @@
                         <div class="flex items-center mt-4">
                             <div class="w-full relative mx-auto text-gray-600">
                                 <input class=" w-full border-2 bg-white h-10 px-5 rounded-md text-lg focus:outline p-6"
-                                    id="customSearchBox" type="search" name="search" placeholder="Search books here...">
+                                    id="searchBook" type="searchBook" name="search" placeholder="Search books here...">
                                 <button type="submit" class="absolute right-0 top-0 mt-4 mr-4">
                                     <svg class="text-gray-600 h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg"
                                         xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px"
@@ -116,45 +109,150 @@
                                     </tr>
                                 </thead>
 
-                                <tbody id="tableBody">
-                                    <td id="noRecordsMessage" class="text-center ">
-
-                                    </td>
-
+                                <tbody id="bookTable">
                                 </tbody>
                             </table>
                         </div>
                     </div>
                     <!-- End Right Column -->
+                     <div class="mt-4" id="pagination-links"></div>
                 </div>
             </div>
         </div>
-
     </div>
 
 
-<script type="text/javascript">
+    <script>
 
-            //DISPLAY DYNAMIC CATEGORY FROM DATABASE SA GILID TO BOOK CATEGORIES 
-            function fetchCategoriesAndPopulate() {
+
+
+        $(document).ready(function () {
+            loadBooks();
+            fetchCategoriesAndPopulate();
+            updateCategoryModalList();
+            categorySelection();
+            var search = '';
+
+    
+
+            function loadBooks(page = 1, search = '') {
+            var value = $('#category-select').val() ?? "All Categories";
             $.ajax({
-                url: '/api/category/display',
+                url: '/api/listbooks/' + value,
+                type: "GET",
+                data: {
+                    page: page,
+                    search: search,
+
+                },
+                success: function (data) {
+                    if (data.data.length > 0) {
+                        renderTable(data.data);
+                        $('#pagination-links').html(data.links);
+                    } else {
+                        $("#bookTable").html('<tr><td colspan="6" class="text-center">No records found</td></tr>');
+                    }
+                },
+                error: function (error) {
+                    console.log("Error:", error);
+                },
+            });
+        }
+
+        $('#searchBook').on('input', function () {
+            var search = $(this).val();
+            loadBooks(1, search);
+        });
+
+                
+                $("#categoryInput, #searchInput").on("input", function () {
+                    loadBooks();
+                });
+
+            
+    
+
+    
+            function renderTable(data) {
+                var tableBody = $("#bookTable");
+                tableBody.empty();
+
+                $.each(data, function (index, book) {
+
+                    var $btnEdit = '<button x-on:click="showModal = true" href="javascript:void(0)" id="createNewBook"  data-toggle="tooltip"  data-id="' + book.id + '" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook" >Edit</button>';
+                    var $btnDelete = '<button href="javascript:void(0)" data-toggle="tooltip"  data-id="' + book.id + '" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</button>';
+                    var $btnTransaction = '<a href="/description/' + book.id + '" data-toggle="tooltip"  data-id="' + book.id + '" data-original-title="Borrow" class="btn btn-warning btn-sm borrowBook">Transaction</a>';
+
+                    var row = $('<tr class="text-center" >');
+                    row.append("<td>" + book.isbn + "</td>");
+                    row.append("<td>" + book.title + "</td>");
+                    row.append("<td>" + book.publisher + "</td>");
+                    row.append("<td>" + book.location_rack + "</td>");
+                    row.append("<td>" + book.status + "</td>");
+                    row.append("<td>" + $btnEdit + " " +$btnDelete + " " + $btnTransaction + "</td>");
+                    tableBody.append(row);
+                });
+
+
+            }
+      
+            $(document).on('click', '#pagination-links a', function (e) {
+                  e.preventDefault();
+                  var page = $(this).attr('href').split('page=')[1];
+                  loadBooks(page);
+              });
+    
+  
+
+
+            $(document).on('click', '#category-select', function (e) {
+                    e.preventDefault();
+                    var category = $(this).data('category');
+
+                    $('#category_title').text(category);
+                    $('#category-select').val(category);
+
+                    loadBooks(category);
+                });
+
+
+
+
+        //DISPLAY DYNAMIC CATEGORY FROM DATABASE SA GILID TO BOOK CATEGORIES 
+        function fetchCategoriesAndPopulate() {
+            $.ajax({
+                url: '{{ route("CategoryList") }}',
                 method: 'GET',
                 success: function(response) {
-
                     var categories = response.categories;
 
                     var categoryContainer = $('.categoryClass');
                     var categoryModalList = $('.categoryModalList');
 
-                    //NEED TO PARA MACLEAR AND DISPLAY UPDATED DATA ULI
+                    // Clear the container
                     categoryContainer.empty();
 
+                    // Add the "All Categories" link
+                    var allCategoriesLink = $('<a>')
+                        .attr('href', '{{ route("showcategory", "All Categories") }}')
+                        .addClass('category-link w-full md:w-auto')
+                        .attr('data-category', 'All Categories')
+                        .attr('id', 'category-select');
+
+                    var allCategoriesListItem = $('<li>')
+                        .addClass('hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left mt-4')
+                        .text('All Categories');
+
+                    allCategoriesLink.append(allCategoriesListItem);
+                    categoryContainer.append(allCategoriesLink);
+
+                    // Add other categories
                     categories.forEach(function(category) {
                         var categoryLink = $('<a>')
                             .attr('href', '{{ route("showcategory", ":category") }}'.replace(':category', category))
                             .addClass('category-link w-full md:w-auto')
-                            .attr('data-category', category);
+                            .attr('data-category', category)
+                            .attr('id', 'category-select');
 
                         var listItem = $('<li>')
                             .addClass('hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left')
@@ -163,36 +261,324 @@
                         categoryLink.append(listItem);
                         categoryContainer.append(categoryLink);
                     });
-
-       
                 },
                 error: function(error) {
                     console.error('Error fetching categories:', error);
                 }
             });
+        }
+
+
+        //PANG DISPLAY WITHOUT REFRESHING THE PAGE , CATEGORY LIST SA MODAL TO
+        function updateCategoryModalList() {
+        $.ajax({
+            url: '{{ route("CategoryList") }}',
+            method: 'GET',
+            success: function(response) {
+                var categories = response.categories;
+
+                $('#categoryListContainer').empty(); // Clear previous categories
+
+                categories.forEach(function(category) {
+                    var categoryItem = $('<div>')
+                        .addClass('flex flex-row justify-between border border-gray-200 rounded-lg p-2 mb-3');
+
+                    var categoryName = $('<label>')
+                        .text(category)
+                        .addClass('w-2/3 px-3');
+
+                    var deleteLink = $('<a>')
+                        .addClass('delete-category')
+                        .data('category', category)
+                        .attr('href', '#');
+
+                    var deleteButtonContent =
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">' +
+                        '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>' +
+                        '<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>' +
+                        '</svg>';
+
+                    deleteLink.html(deleteButtonContent);
+
+                    categoryItem.append(categoryName, deleteLink);
+                    $('#categoryListContainer').append(categoryItem);
+                });
+
+                // Attach delete functionality
+                $('.delete-category').on('click', function(e) {
+                    e.preventDefault();
+                    var deleteLink = $(this);
+                    var categoryToDelete = deleteLink.data('category');
+
+                    $.ajax({
+                        url: '/api/delete/category/' + categoryToDelete,
+                        method: 'DELETE',
+                        success: function(deleteResponse) {
+                            console.log(`Category '${categoryToDelete}' deleted successfully.`);
+                            deleteLink.closest('.flex').remove(); 
+                        },
+                        error: function(deleteError) {
+                            console.error('Error deleting category:', deleteError);
+                        }
+                    });
+                });
+            },
+            error: function(error) {
+                console.error('Error fetching categories:', error);
             }
+        });
+        }
 
-            //PANG DISPLAY WITHOUT REFRESHING THE PAGE , CATEGORY LIST SA MODAL TO
-            function updateCategoryModalList() {
+
+        function deleteCategory(categoryToDelete) {
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
             $.ajax({
-                url: '{{ route("CategoryList") }}',
-                method: 'GET',
-                success: function(response) {
-                    var categories = response.categories;
+                url: '/api/delete/category/' + categoryToDelete,
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                success: function(deleteResponse) {
+                    console.log(`Category '${categoryToDelete}' deleted successfully.`);
+                    fetchCategoriesAndPopulate();
+                     categorySelection();
 
-                    $('#categoryListContainer').empty(); // Clear previous categories
+                },
+                error: function(deleteError) {
+                    console.error('Error deleting category:', deleteError);
+                }
+            });
+        }
 
-                    categories.forEach(function(category) {
+
+        function categorySelection(){
+            $.ajax({
+            url: '/api/category/display', 
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                // clear muna categ para display updated
+                $('#category').empty();
+
+                var categories = response.categories; 
+
+                categories.forEach(function(category) {
+                    // Category list sa add book ito
+                    $('#category').append('<option value="' + category + '">' + category + '</option>');           
+                        
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error(error); 
+            }
+        });
+        }
+
+
+
+
+        //DELETE BOOK
+        $('body').on('click', '.deleteBook', function () {
+            var book_id = $(this).data("id");
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You want to delete this book!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "DELETE",
+                        url: "{{ url('/api/deletebook') }}/" + book_id,
+                        data: { _token: '{{ csrf_token() }}' },
+                        success: function (data) {
+                           loadBooks();
+                        },
+                        error: function (data) {
+                            console.log('Error:', data);
+                        }
+                    });
+                }
+            });
+        });
+
+
+
+            $('#createNewBook').click(function () {
+                $('#saveBtn').val("create-book");
+                $('#modelHeader').text("Create New Book");
+                $('#book_id').val('');
+                $('#bookForm').trigger("reset");
+                $('#ajaxModel').modal('show');
+            });
+
+
+
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var output = document.getElementById('preview');
+                output.src = reader.result;
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+
+         //CREATE AND FOR UPDATE BOOKS
+         $('#saveBtn').click(function (e) {
+            e.preventDefault();
+            $(this).html('Save');
+            
+            if ($('#saveBtn').val() === "edit-book"){
+                var book_id = $('#book_number_id').val();
+                var formData = $('#bookForm').serialize();
+
+                $.ajax({
+                    data: formData,
+                    url: "{{ url ('/api/updatebook')}}/"+book_id,
+                    type: "PUT",
+                    dataType:'json',
+                    success: function (data) {
+                        $('#bookForm').trigger("reset");
+                        let alpineInstance = document.getElementById('ajaxModal');
+
+                        if (alpineInstance) {
+                            alpineInstance.__x.$data.showModal = false; 
+                        } else {
+                            console.error('#ajaxModal element not found');
+                        }
+
+
+                        location.reload();
+                    },
+                    error: function (data) {
+                        console.log('Error:', data);
+                        $('#saveBtn').html('Save');
+                    }
+           });
+
+          }else{
+            
+                var formData = new FormData;
+                var bookImageFile = $('#book_image')[0].files[0];
+                
+                if (bookImageFile) {
+                        formData.append('book_image', bookImageFile);
+                    }
+                
+                    $('#bookForm').find('input, textarea, select').not('#book_image').each(function () {
+                    formData.append($(this).attr('name'), $(this).val());
+                });
+
+                $.ajax({
+                data: formData,
+                url: "{{ route ('addbooks')}}",
+                type: "POST",
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    $('#bookForm').trigger("reset");
+                    let alpineInstance = document.getElementById('ajaxModal');
+
+                    if (alpineInstance) {
+                        alpineInstance.__x.$data.showModal = false; 
+                    } else {
+                        console.error('#ajaxModal element not found');
+                    }
+
+                    loadBooks();
+                },
+                error: function (data) {
+                    console.log('Error:', data);
+                    $('#saveBtn').html('Save');
+                }
+            });
+        }
+        });
+
+
+        //EDIT BOOKS
+        $('body').on('click', '.editBook', function () {
+
+            var book_id = $(this).data('id');
+
+
+            $.get("{{ url('/api/edit/book') }}/" + book_id, function (data) {
+                $('#modelHeader').html("Edit Book");
+                
+                let alpineInstance = document.getElementById('ajaxModal');
+                if (alpineInstance) {
+                    alpineInstance.__x.$data.showModal = true; 
+                } else {
+                    console.error('#ajaxModal element not found');
+                }
+
+                $('#saveBtn').text('Save');
+                $('#saveBtn').val("edit-book");
+               
+                $('#book_number_id').val(data.id);
+                $('#title').val(data.title);
+                $('#author').val(data.author);
+                $('#status').val(data.status);
+                $('#isbn').val(data.isbn);
+                $('#category').val(data.category);
+                $('#location_rack').val(data.location_rack);
+                $('#condition').val(data.condition);
+                $('#edition').val(data.edition);
+                $('#publisher').val(data.publisher);
+                $('#copyright_year').val(data.copyright_year);
+                $('#accession_number').val(data.accession_number);
+                $('#description').val(data.description);
+
+
+                
+            });
+        });
+
+
+
+        //DISPLAY CATEGORY LIST SA MODAL WITH DELETE BUTTON
+        $('#categoryListContainer').on('click', '.delete-category', function(e) {
+            e.preventDefault();
+            var deleteLink = $(this);
+            var categoryToDelete = deleteLink.data('category');
+            deleteCategory(categoryToDelete);
+            fetchCategoriesAndPopulate();
+            deleteLink.closest('.flex').remove();
+           
+        });
+
+        // ADD NEW CATEGORY
+        $('#categoryForm').submit(function(e) {
+            e.preventDefault();
+            var categoryName = $('#category_name').val();
+
+            if (categoryName.trim() !== '') {
+                $.ajax({
+                    url: '{{ route("category.add") }}',
+                    method: 'POST',
+                    data: {
+                        _token: $('input[name="_token"]').val(),
+                        category_name: categoryName
+                    },
+                    success: function(response) {
+                        console.log('Category added successfully:', response);
+
                         var categoryItem = $('<div>')
                             .addClass('flex flex-row justify-between border border-gray-200 rounded-lg p-2 mb-3');
 
-                        var categoryName = $('<label>')
-                            .text(category)
+                        var categoryNameElement = $('<label>')
+                            .text(response.category.category)
                             .addClass('w-2/3 px-3');
 
                         var deleteLink = $('<a>')
                             .addClass('delete-category')
-                            .data('category', category)
+                            .data('category', response.category.category)
                             .attr('href', '#');
 
                         var deleteButtonContent =
@@ -203,379 +589,29 @@
 
                         deleteLink.html(deleteButtonContent);
 
-                        categoryItem.append(categoryName, deleteLink);
+                        categoryItem.append(categoryNameElement, deleteLink);
                         $('#categoryListContainer').append(categoryItem);
-                    });
-
-                    // Attach delete functionality
-                    $('.delete-category').on('click', function(e) {
-                        e.preventDefault();
-                        var deleteLink = $(this);
-                        var categoryToDelete = deleteLink.data('category');
-
-                        $.ajax({
-                            url: '/api/delete/category/' + categoryToDelete,
-                            method: 'DELETE',
-                            success: function(deleteResponse) {
-                                console.log(`Category '${categoryToDelete}' deleted successfully.`);
-                                deleteLink.closest('.flex').remove(); // Remove deleted category
-                            },
-                            error: function(deleteError) {
-                                console.error('Error deleting category:', deleteError);
-                            }
-                        });
-                    });
-                },
-                error: function(error) {
-                    console.error('Error fetching categories:', error);
-                }
-            });
-            }
-
-
-            function deleteCategory(categoryToDelete) {
-                $.ajax({
-                    url: '/api/delete/category/' + categoryToDelete,
-                    method: 'DELETE',
-                    success: function(deleteResponse) {
-                        console.log(`Category '${categoryToDelete}' deleted successfully.`);
+                        $('#category_name').val('');
+                        categorySelection();
                         fetchCategoriesAndPopulate();
-                         categorySelection();
-
                     },
-                    error: function(deleteError) {
-                        console.error('Error deleting category:', deleteError);
+                    error: function(error) {
+                        console.error('Error adding category:', error);
                     }
                 });
+            } else {
+                console.error('Category name cannot be empty');
             }
-
-
-            function categorySelection(){
-                $.ajax({
-                url: '/api/category/display', 
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    // clear muna categ para display updated
-                    $('#category').empty();
-
-                    var categories = response.categories; 
-
-                    categories.forEach(function(category) {
-                        // Category list sa add book ito
-                        $('#category').append('<option value="' + category + '">' + category + '</option>');           
-                            
-                    });
-                },
-                error: function(xhr, status, error) {
-                    console.error(error); 
-                }
-            });
-            }
-
-            var table;
-
-            $(document).ready(function() {         
-
-                fetchCategoriesAndPopulate();
-                updateCategoryModalList();
-                categorySelection();
-  
-            });
-
-
-
-            //CATEGORY OPTION SA MODAL, PAMIMILIAN
-
-
-         //DISPLAY DATA FROM API FOR DATATABLE
-        $(function() {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            var table = $('#data-table').DataTable({
-                dom: 'lrtip',
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: "{{ route('BookList') }}",
-                    type: 'GET'
-                },
-                columns: [{
-                        data: 'isbn',  name: 'isbn'
-                    },
-                    {
-                        data: 'title',  name: 'title'
-                    },
-                    {
-                        data: 'publisher',  name: 'publisher'
-                    },
-                    {
-                        data: 'location_rack',  name: 'location_rack'
-                    },
-                    {
-                        data: 'status', name: 'status'
-                    },
-                    {
-                        data: 'action', name: 'action', orderable: false, searchable: false
-                    },
-                ],
-
-         
-            });
-
-
-            $('#customSearchBox').on('keyup', function() {
-                table.search(this.value).draw();
-            });
-
-
-                   
-
-            table.on('xhr', function() {
-                var data = table.ajax.json().data; 
-
-                $('#tableBody').empty();
-
-                $.each(data, function(index, item) {
-           
-                    var newRow = '<tr class="text-center">' +
-                        '<td class="py-2 px-8 border-b border-gray-200 font-weight-bold">' + item
-                        .isbn + '</td>' +
-                        '<td class="py-2 px-8 border-b border-gray-200" id="book_title">' + item.title + '</td>'
-                        '<td class="py-2 px-8 border-b border-gray-200">' + item.author + '</td>' +
-                        '<td class="py-2 px-8 border-b border-gray-200">' + item.location_rack +
-                        '</td>' +
-                        '<td class="py-2 px-8 border-b border-gray-200">' + item.status + '</td>' +
-                        '</tr>';
-
-                    $('#tableBody').append(newRow); 
-                });
-
-            });
-
-
-            $(document).on('click', '.category-link', function(e) {
-                e.preventDefault();
-                var category = $(this).data('category');
-
-                if (table) {
-                    table.ajax.url("{{ route('showcategory', ':category') }}".replace(':category', category)).load();
-                    $('#category_title').text(category);
-                } else {
-                    console.error('Table instance is not defined.');
-                }
-            });
-
-
-
-            //DELETE BOOK
-            $('body').on('click', '.deleteBook', function () {
-                var book_id = $(this).data("id");
-
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'You want to delete this book!',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: "DELETE",
-                            url: "{{ url('/api/deletebook') }}/" + book_id,
-                            data: { _token: '{{ csrf_token() }}' },
-                            success: function (data) {
-                                table.draw();
-                            },
-                            error: function (data) {
-                                console.log('Error:', data);
-                            }
-                        });
-                    }
-                });
-            });
-
-
-
-                $('#createNewBook').click(function () {
-                    $('#saveBtn').val("create-book");
-                    $('#modelHeader').text("Create New Book");
-                    $('#book_id').val('');
-                    $('#bookForm').trigger("reset");
-                    $('#ajaxModel').modal('show');
-                });
-
-
-
-            function previewImage(event) {
-                var reader = new FileReader();
-                reader.onload = function() {
-                    var output = document.getElementById('preview');
-                    output.src = reader.result;
-                }
-                reader.readAsDataURL(event.target.files[0]);
-            }
-
-
-             //CREATE AND FOR UPDATE BOOKS
-             $('#saveBtn').click(function (e) {
-                e.preventDefault();
-                $(this).html('Saving..');
-
-                var formData = new FormData();
-                var bookImageFile = $('#book_image')[0].files[0];
-
-                if (bookImageFile) {
-                        formData.append('book_image', bookImageFile);
-                    }
-
-
-
-                $('#bookForm').find('input, textarea, select').not('#book_image').each(function () {
-                    formData.append($(this).attr('name'), $(this).val());
-                });
-
-
-                $.ajax({
-                   data: formData,
-                   url: "{{ route('addbooks') }}",
-                   type: "POST",
-                   contentType: false,
-                   processData: false,
-                   success: function (data) {
-                       $('#bookForm').trigger("reset");
-                       let alpineInstance = document.getElementById('ajaxModal');
-
-                       if (alpineInstance) {
-                           alpineInstance.__x.$data.showModal = false; 
-                       } else {
-                           console.error('#ajaxModal element not found');
-                       }
-
-                       table.draw();
-                   },
-                   error: function (data) {
-                       console.log('Error:', data);
-                       $('#saveBtn').html('Save');
-                   }
-               });
-
-
-            });
-
-
-            //EDIT BOOKS
-            $('body').on('click', '.editBook', function () {
-                var book_id = $(this).data('id');
-                $.get("{{ url('/edit/book') }}/" + book_id, function (data) {
-
-                    $('#modelHeader').html("Edit Book");
-                    
-                    let alpineInstance = document.getElementById('ajaxModal');
-                    if (alpineInstance) {
-                        alpineInstance.__x.$data.showModal = true; 
-                    } else {
-                        console.error('#ajaxModal element not found');
-                    }
-
-                    $('#saveBtn').text('Save');
-                    $('#saveBtn').val("edit-book");
-                   
-                    $('#book_number_id').val(data.id);
-                    $('#title').val(data.title);
-                    $('#author').val(data.author);
-                    $('#status').val(data.status);
-                    $('#isbn').val(data.isbn);
-                    $('#category').val(data.category);
-                    $('#location_rack').val(data.location_rack);
-                    $('#condition').val(data.condition);
-                    $('#edition').val(data.edition);
-                    $('#publisher').val(data.publisher);
-                    $('#copyright_year').val(data.copyright_year);
-                    $('#accession_number').val(data.accession_number);
-                    $('#description').val(data.description);
-
-
-                    
-                });
-            });
-
-
-
-            //DISPLAY CATEGORY LIST SA MODAL WITH DELETE BUTTON
-            $('#categoryListContainer').on('click', '.delete-category', function(e) {
-                e.preventDefault();
-                var deleteLink = $(this);
-                var categoryToDelete = deleteLink.data('category');
-                deleteCategory(categoryToDelete);
-                fetchCategoriesAndPopulate();
-                deleteLink.closest('.flex').remove();
-               
-            });
-
-            // ADD NEW CATEGORY
-            $('#categoryForm').submit(function(e) {
-                e.preventDefault();
-                var categoryName = $('#category_name').val();
-
-                if (categoryName.trim() !== '') {
-                    $.ajax({
-                        url: '{{ route("category.add") }}',
-                        method: 'POST',
-                        data: {
-                            _token: $('input[name="_token"]').val(),
-                            category_name: categoryName
-                        },
-                        success: function(response) {
-                            console.log('Category added successfully:', response);
-
-                            var categoryItem = $('<div>')
-                                .addClass('flex flex-row justify-between border border-gray-200 rounded-lg p-2 mb-3');
-
-                            var categoryNameElement = $('<label>')
-                                .text(response.category.category)
-                                .addClass('w-2/3 px-3');
-
-                            var deleteLink = $('<a>')
-                                .addClass('delete-category')
-                                .data('category', response.category.category)
-                                .attr('href', '#');
-
-                            var deleteButtonContent =
-                                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">' +
-                                '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>' +
-                                '<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>' +
-                                '</svg>';
-
-                            deleteLink.html(deleteButtonContent);
-
-                            categoryItem.append(categoryNameElement, deleteLink);
-                            $('#categoryListContainer').append(categoryItem);
-                            $('#category_name').val('');
-                            categorySelection();
-                            fetchCategoriesAndPopulate();
-                        },
-                        error: function(error) {
-                            console.error('Error adding category:', error);
-                        }
-                    });
-                } else {
-                    console.error('Category name cannot be empty');
-                }
-            });
-        
-
- 
-
         });
+    
 
 
-    </script>
+
+    // });
+
+});
+
+</script>
+
 </div>
 @endsection
