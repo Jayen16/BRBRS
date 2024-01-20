@@ -59,10 +59,21 @@ class AuthController extends Controller
     public function login(Request $request)
     {
 
+       $validator = Validator::make($request->all(), [
+            'username' => 'required|username',
+            'password' => 'required',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation fails',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+    
         $user = User::where('username', $request->username)->first();
-
-            
-        if($request->password ==  $request->username)) {
+    
+        if ($user && Hash::check($request->password, $user->password)) {
             $token = $user->createToken('auth-token')->plainTextToken;
     
             return response()->json([
@@ -71,6 +82,7 @@ class AuthController extends Controller
                 'data' => $user,
             ], 200);
         }
+    
         return response()->json([
             'message' => 'Incorrect credentials',
         ], 400);
