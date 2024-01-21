@@ -73,7 +73,6 @@
                         </thead>
   
                         <tbody id="patrons-table">
-                     
                         </tbody>
                       </table>
                     </div>
@@ -101,7 +100,7 @@
                     dataType: 'json',
                     data: {
                         page: page, 
-                        limit: 3,
+                        limit: 5,
                         sortColumn: sortColumn,
                         sortOrder: sortOrder,
                         search: search,
@@ -213,7 +212,20 @@
                         _token: '{{ csrf_token() }}'
                     },
                     success: function(data) {
-                        fetchData();
+
+
+                      let successMessage = data.success;
+                     document.querySelector('[x-data]').__x.$data.showMessage = true;
+                     document.querySelector('[x-data]').__x.$data.successMessage = successMessage;
+                 
+                     setTimeout(() => {
+                         document.querySelector('[x-data]').__x.$data.showMessage = false;
+                         document.querySelector('[x-data]').__x.$data.successMessage = '';
+                     }, 5000);
+
+                     fetchData();
+
+
                     },
                     error: function(data) {
                         console.log('Error:', data);
@@ -250,12 +262,13 @@
 
 
             $('#saveBtn').click(function(e) {
-                
+
+               e.preventDefault(); 
+
                 $(this).html('Save');
 
                 var actionType = $(this).attr('value');
 
-                console.log(actionType);
                 var patronId = $('#school_id').val();
 
                 var url = (actionType === 'create') ? "{{ route('addpatrons') }}" : '{{ url('api/updatepatron') }}/' + patronId; 
@@ -267,22 +280,60 @@
                     type: (actionType === 'create') ? 'POST' : 'PUT',
                     dataType: 'json',
                     success: function(data) {
-                        $('#patronForm').trigger("reset");
-                        let alpineInstance = document.getElementById('ajaxModal');
+                      
+                      $('#patronForm').trigger("reset");
+                     let alpineInstance = document.getElementById('ajaxModal');
+                 
+                     if (alpineInstance) {
+                         alpineInstance.__x.$data.showModal = false;
+                     } else {
+                         console.error('#ajaxModal element not found');
+                     }
+                 
+                     let successMessage = data.success;
+                     document.querySelector('[x-data]').__x.$data.showMessage = true;
+                     document.querySelector('[x-data]').__x.$data.successMessage = successMessage;
+                 
+                     setTimeout(() => {
+                         document.querySelector('[x-data]').__x.$data.showMessage = false;
+                         document.querySelector('[x-data]').__x.$data.successMessage = '';
+                     }, 5000);
 
-                        if (alpineInstance) {
-                            alpineInstance.__x.$data.showModal = false;
-                        } else {
-                            console.error('#ajaxModal element not found');
-                        }
-
-                        fetchData();
-                        $('#saveBtn').val("create");
+                     fetchData();
+                     $('#saveBtn').val("create");
                     },
                     error: function(data) {
-                        console.log('Error:', data);
-                        $('#saveBtn').html('Save Changes');
+
+                      let erroMessage = data.error;
+                     document.querySelector('[x-data]').__x.$data.showError = true;
+                     document.querySelector('[x-data]').__x.$data.erroMessage = erroMessage;
+                 
+                     setTimeout(() => {
+                         document.querySelector('[x-data]').__x.$data.showError = false;
+                         document.querySelector('[x-data]').__x.$data.erroMessage = '';
+                     }, 5000);
+
+
+                      let errorResponse = JSON.parse(data.responseText);
+                      let validationErrors = errorResponse.error;
+                      
+                      displayValidationError('school_id', validationErrors.school_id);
+                      displayValidationError('patron_id', validationErrors.patron_id);
+                      displayValidationError('last_name', validationErrors.last_name);
+                      displayValidationError('first_name', validationErrors.first_name);
+                      displayValidationError('type', validationErrors.type);
+                      displayValidationError('registration_status', validationErrors.registration_status);
+
+                      function displayValidationError(field, errors) {
+                          let errorMessageHtml = '<p id="' + field + '_error" style="color: red;">' + (errors ? errors.join(', ') : '') + '</p>';
+                          $('#' + field + '_error').html(errorMessageHtml);
+                      }
+
+
+                      $('#saveBtn').html('Save Changes');
                     }
+
+                    
                 });
             });
         });
@@ -294,3 +345,6 @@
 
 
 @endsection
+
+
+

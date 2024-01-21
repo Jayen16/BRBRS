@@ -23,7 +23,7 @@ class CategoryController extends Controller
             $deleted = Category::where('category', $categoryName)->delete();
     
             if ($deleted) {
-                return response()->json(['message' => 'Category deleted successfully']);
+                return response()->json(['success' => 'Category deleted successfully']);
             } else {
                 return response()->json(['error' => 'Category not found or failed to delete'], 404);
             }
@@ -44,7 +44,7 @@ class CategoryController extends Controller
             $category->category = $request->input('category_name');
             $category->save();
     
-            return response()->json(['message' => 'Category added successfully', 'category' => $category]);
+            return response()->json(['success' => 'Category added successfully', 'category' => $category]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['error' => $e->errors()], 422);

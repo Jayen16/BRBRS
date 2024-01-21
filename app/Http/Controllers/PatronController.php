@@ -117,7 +117,7 @@ class PatronController extends Controller
 
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'An error occurred while processing the request.',
+                'error' => 'Patron failed to add',
                 'message' => $e->getMessage()
             ], 500);
         }

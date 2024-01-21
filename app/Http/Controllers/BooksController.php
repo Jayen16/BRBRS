@@ -61,38 +61,31 @@ class BooksController extends Controller
         ]);
 
     
-        // return response()->json($result);
     }
     
     public function showCategory(Request $request, $category)
     {
         $query = Book::query();
     
-        // Check if the selected category exists in the database
         if ($category !== null && $category != 'All Categories') {
             $query->where('category', $category);
         }
     
-        // Apply search filter if search value is present
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($subQuery) use ($search) {
                 $subQuery->where('title', 'like', '%' . $search . '%')
                           ->orWhere('status', 'like', '%' . $search . '%')
                           ->orWhere('author', 'like', '%' . $search . '%');
-                // Add more fields as needed
             });
         }
     
-        // You can add additional filters here if needed
     
-        // Sort by default if no sort parameters are provided
         $sortColumn = $request->input('sortColumn', 'id');
         $sortOrder = $request->input('sortOrder', 'asc');
         $query->orderBy($sortColumn, $sortOrder);
     
-        // Paginate the result
-        $limit = $request->input('limit', 10); // Adjust the default limit as needed
+        $limit = $request->input('limit', 10); 
         $result = $query->paginate($limit);
     
         return response()->json([
@@ -147,7 +140,7 @@ class BooksController extends Controller
                 $book = Book::create($validatedData);
         
                 if ($book) {
-                    return response()->json(['success' => 'Book saved successfully.', 'book' => $book]);
+                    return response()->json(['success' => 'Book added successfully.', 'book' => $book]);
                 } else {
                     return response()->json(['error' => 'Failed to save book.']);
                 }
@@ -192,12 +185,10 @@ class BooksController extends Controller
                 ]);
         
                 if ($request->hasFile('book_image')) {
-                    // Delete the old image if it exists
                     if ($book->book_image && Storage::disk('public')->exists('books/' . $book->book_image)) {
                         Storage::disk('public')->delete('books/' . $book->book_image);
                     }
         
-                    // Handle image upload and update logic
                     $uploadedImage = $request->file('book_image');
                     $storagePath = 'books';
                     $title = $request->input('title');

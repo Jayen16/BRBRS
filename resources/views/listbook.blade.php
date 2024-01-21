@@ -143,6 +143,7 @@
                 data: {
                     page: page,
                     search: search,
+                    limit: 1,
 
                 },
                 success: function (data) {
@@ -224,43 +225,50 @@
                 url: '{{ route("CategoryList") }}',
                 method: 'GET',
                 success: function(response) {
-                    var categories = response.categories;
 
-                    var categoryContainer = $('.categoryClass');
-                    var categoryModalList = $('.categoryModalList');
+                
+                   // Check if the response has a 'categories' property
+                   if ('categories' in response) {
+                       var categories = response.categories;
+                       var categoryContainer = $('.categoryClass');
+                       var categoryModalList = $('.categoryModalList');
+                
+                       // Clear the container
+                       categoryContainer.empty();
+                
+                       var allCategoriesLink = $('<a>')
+                           .attr('href', '{{ route("showcategory", "All Categories") }}')
+                           .addClass('category-link w-full md:w-auto')
+                           .attr('data-category', 'All Categories')
+                           .attr('id', 'category-select');
+                
+                       var allCategoriesListItem = $('<li>')
+                           .addClass('hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left mt-4')
+                           .text('All Categories');
+                
+                       allCategoriesLink.append(allCategoriesListItem);
+                       categoryContainer.append(allCategoriesLink);
+                
+                       // Add other categories
+                       categories.forEach(function(category) {
+                           var categoryLink = $('<a>')
+                               .attr('href', '{{ route("showcategory", ":category") }}'.replace(':category', category))
+                               .addClass('category-link w-full md:w-auto')
+                               .attr('data-category', category)
+                               .attr('id', 'category-select');
+                
+                           var listItem = $('<li>')
+                               .addClass('hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left')
+                               .text(category);
+                
+                           categoryLink.append(listItem);
+                           categoryContainer.append(categoryLink);
+                       });
+                   }
 
-                    // Clear the container
-                    categoryContainer.empty();
 
-                    // Add the "All Categories" link
-                    var allCategoriesLink = $('<a>')
-                        .attr('href', '{{ route("showcategory", "All Categories") }}')
-                        .addClass('category-link w-full md:w-auto')
-                        .attr('data-category', 'All Categories')
-                        .attr('id', 'category-select');
+           
 
-                    var allCategoriesListItem = $('<li>')
-                        .addClass('hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left mt-4')
-                        .text('All Categories');
-
-                    allCategoriesLink.append(allCategoriesListItem);
-                    categoryContainer.append(allCategoriesLink);
-
-                    // Add other categories
-                    categories.forEach(function(category) {
-                        var categoryLink = $('<a>')
-                            .attr('href', '{{ route("showcategory", ":category") }}'.replace(':category', category))
-                            .addClass('category-link w-full md:w-auto')
-                            .attr('data-category', category)
-                            .attr('id', 'category-select');
-
-                        var listItem = $('<li>')
-                            .addClass('hover:border-black hover:bg-gray-100 border-2 border rounded-md pl-5 p-2 m-2 text-left')
-                            .text(category);
-
-                        categoryLink.append(listItem);
-                        categoryContainer.append(categoryLink);
-                    });
                 },
                 error: function(error) {
                     console.error('Error fetching categories:', error);
@@ -275,6 +283,8 @@
             url: '{{ route("CategoryList") }}',
             method: 'GET',
             success: function(response) {
+   
+
                 var categories = response.categories;
 
                 $('#categoryListContainer').empty(); // Clear previous categories
@@ -334,21 +344,33 @@
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             $.ajax({
-                url: '/api/delete/category/' + categoryToDelete,
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                success: function(deleteResponse) {
-                    console.log(`Category '${categoryToDelete}' deleted successfully.`);
-                    fetchCategoriesAndPopulate();
-                     categorySelection();
-
-                },
-                error: function(deleteError) {
-                    console.error('Error deleting category:', deleteError);
-                }
-            });
+               url: '/api/delete/category/' + categoryToDelete,
+               method: 'DELETE',
+               headers: {
+                   'X-CSRF-TOKEN': csrfToken
+               },
+               success: function(deleteResponse) {
+                   // Check if the response has a 'success' property
+                   if ('success' in deleteResponse) {
+                       fetchCategoriesAndPopulate();
+                       categorySelection();
+           
+                       let successMessage = deleteResponse.success;
+                       document.querySelector('[x-data]').__x.$data.showMessage = true;
+                       document.querySelector('[x-data]').__x.$data.successMessage = successMessage;
+           
+                       setTimeout(() => {
+                           document.querySelector('[x-data]').__x.$data.showMessage = false;
+                           document.querySelector('[x-data]').__x.$data.successMessage = '';
+                       }, 2000);
+                   } else {
+                       console.error('Invalid response format after deleting category:', deleteResponse);
+                   }
+               },
+               error: function(deleteError) {
+                   console.error('Error deleting category:', deleteError);
+               }
+           });
         }
 
 
@@ -381,6 +403,7 @@
         //DELETE BOOK
         $('body').on('click', '.deleteBook', function () {
             var book_id = $(this).data("id");
+            var tableRow = $(this).closest('tr');
 
             Swal.fire({
                 title: 'Are you sure?',
@@ -397,7 +420,19 @@
                         url: "{{ url('/api/deletebook') }}/" + book_id,
                         data: { _token: '{{ csrf_token() }}' },
                         success: function (data) {
-                           loadBooks();
+                        //    loadBooks();
+                          tableRow.hide();
+
+                           let successMessage = data.success;
+                           document.querySelector('[x-data]').__x.$data.showMessage = true;
+                           document.querySelector('[x-data]').__x.$data.successMessage = successMessage;
+                       
+                           setTimeout(() => {
+                               document.querySelector('[x-data]').__x.$data.showMessage = false;
+                               document.querySelector('[x-data]').__x.$data.successMessage = '';
+                           }, 5000);
+
+
                         },
                         error: function (data) {
                             console.log('Error:', data);
@@ -431,10 +466,11 @@
 
          //CREATE AND FOR UPDATE BOOKS
          $('#saveBtn').click(function (e) {
-            e.preventDefault();
+           
             $(this).html('Save');
             
             if ($('#saveBtn').val() === "edit-book"){
+                e.preventDefault();
                 var book_id = $('#book_number_id').val();
                 var formData = $('#bookForm').serialize();
 
@@ -452,9 +488,17 @@
                         } else {
                             console.error('#ajaxModal element not found');
                         }
+                        
+                    let successMessage = data.success;
+                     document.querySelector('[x-data]').__x.$data.showMessage = true;
+                     document.querySelector('[x-data]').__x.$data.successMessage = successMessage;
+                 
+                     setTimeout(() => {
+                         document.querySelector('[x-data]').__x.$data.showMessage = false;
+                         document.querySelector('[x-data]').__x.$data.successMessage = '';
+                     }, 5000);
 
-
-                        location.reload();
+                        // location.reload();
                     },
                     error: function (data) {
                         console.log('Error:', data);
@@ -463,7 +507,7 @@
            });
 
           }else{
-            
+            e.preventDefault();
                 var formData = new FormData;
                 var bookImageFile = $('#book_image')[0].files[0];
                 
@@ -491,7 +535,32 @@
                         console.error('#ajaxModal element not found');
                     }
 
-                    loadBooks();
+                    var bookData = data.book;
+
+                    var newRowHtml = '<tr class="text-center">';
+                    newRowHtml += '<td>' + bookData.isbn + '</td>';
+                    newRowHtml += '<td>' + bookData.title + '</td>';
+                    newRowHtml += '<td>' + bookData.publisher + '</td>';
+                    newRowHtml += '<td>' + bookData.location_rack + '</td>';
+                    newRowHtml += '<td>' + bookData.status + '</td>';
+                    newRowHtml += '<td>' +
+                        '<button x-on:click="showModal = true" href="javascript:void(0)" data-toggle="tooltip" data-id="' + bookData.id + '" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook">Edit</button> ' +
+                        '<button href="javascript:void(0)" data-toggle="tooltip" data-id="' + bookData.id + '" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</button> ' +
+                        '<a href="/description/' + bookData.id + '" data-toggle="tooltip" data-id="' + bookData.id + '" data-original-title="Borrow" class="btn btn-warning btn-sm borrowBook">Transaction</a>' +
+                        '</td>';
+                    newRowHtml += '</tr>';
+                
+                    $('#bookTable').append(newRowHtml);
+
+                    let successMessage = data.success;
+                     document.querySelector('[x-data]').__x.$data.showMessage = true;
+                     document.querySelector('[x-data]').__x.$data.successMessage = successMessage;
+                 
+                     setTimeout(() => {
+                         document.querySelector('[x-data]').__x.$data.showMessage = false;
+                         document.querySelector('[x-data]').__x.$data.successMessage = '';
+                     }, 5000);
+
                 },
                 error: function (data) {
                     console.log('Error:', data);
@@ -567,7 +636,18 @@
                         category_name: categoryName
                     },
                     success: function(response) {
-                        console.log('Category added successfully:', response);
+
+
+                        if ('success' in response) {
+                             let successMessage = response.success;
+                             document.querySelector('[x-data]').__x.$data.showMessage = true;
+                             document.querySelector('[x-data]').__x.$data.successMessage = successMessage;
+                       
+                             setTimeout(() => {
+                                 document.querySelector('[x-data]').__x.$data.showMessage = false;
+                                 document.querySelector('[x-data]').__x.$data.successMessage = '';
+                             }, 2000);
+                         }
 
                         var categoryItem = $('<div>')
                             .addClass('flex flex-row justify-between border border-gray-200 rounded-lg p-2 mb-3');

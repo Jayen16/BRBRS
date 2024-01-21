@@ -20,6 +20,7 @@
                             <input
                               class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700 font-semibold"
                               id="school_id" name="school_id" type="text" placeholder="number id" required>
+                              <p id="school_id_error"> </p>
                           </div>
                           <div class="w-1/2 px-3 mb-3">
                             <label class="block tracking-wide text-gray-700 text-md font-medium mb-1" for="">
@@ -30,6 +31,7 @@
                               id="patron_id" name="patron_id"  type="number" placeholder="Student No./Employee No." maxlength="10"
                               oninput="javascript: if (this.value.length > this.maxLength) this.value =
                             this.value.slice(0, this.maxLength);" required>
+                            <p id="patron_id_error"> </p>
                           </div>
                         </div>
                         <hr class="border-1 mb-4">
@@ -43,6 +45,7 @@
                               class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"
                               id="last_name" name="last_name"  type="text" placeholder="
                               " required>
+                              <p id="first_name_error"> </p>
                           </div>
                           <div class="w-1/3 px-3 mb-2">
                             <label class="block tracking-wide text-gray-700 text-md font-medium mb-1" for="">
@@ -52,6 +55,7 @@
                               class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"
                               id="first_name" name="first_name" type="text" placeholder="
                               " required>
+                              <p id="last_name_error"> </p>
                           </div>
                           <div class="w-1/3 px-3 mb-2">
                             <label class="block tracking-wide text-gray-700 text-md font-medium mb-1" for="">
@@ -60,7 +64,7 @@
                             <input
                               class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"
                               id="middle_name" name="middle_name"  type="text" placeholder="
-                              " required>
+                              " >
                           </div>
                         </div>
   
@@ -81,6 +85,7 @@
                                   <option value="Employee">Employee</option>
                                   <option value="Library Staff">Library Staff</option>
                                 </select>
+                                <p id="type_error"> </p>
                               </div>
 
                             <div id="programContainer" class="w-2/3 px-3" style="display: none;">
@@ -175,16 +180,20 @@
                               <option value="Registered">Registered</option>
                               <option value="Not Registered">Not Registered</option>
                             </select>
+                            <p id="registration_status_error"> </p>
                           </div>
                         </div>
                       </div>    
-                </div>
+                {{-- </div> --}}
+
+
+
                 <div class="flex flex-row justify-end gap-2 mt-2">
                     <button type="submit" id="saveBtn" value="create"
                         class="mt-4 bg-green-700 hover:bg-green-800 px-4 py-2 rounded-lg text-white font-medium">Add</button>
                     <button x-on:click="showModal = false" type="button" id="cancelBtn" 
                         class="mt-4 bg-red-400 hover:bg-red-500 px-4 py-2 rounded-lg text-white font-medium">Cancel</button>                
-                
+                      </div>
                 </div>
             </div>
   

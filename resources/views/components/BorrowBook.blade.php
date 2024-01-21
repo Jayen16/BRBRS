@@ -180,7 +180,8 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Error!',
-                    text: 'This patron is not the last borrower of this book.',
+                    text: error,
+                    // text: 'This patron is not the last borrower of this book.',
                 });
             }
         });
