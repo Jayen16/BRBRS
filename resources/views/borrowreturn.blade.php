@@ -30,7 +30,7 @@
                                     <div class="w-full relative mx-auto text-gray-600">
                                         <input
                                             class=" w-full border-2 bg-white h-10 px-5 rounded-md text-lg focus:outline p-6"
-                                            type="searchBorrow" name="search" placeholder="Search here..." id="searchInput">
+                                            type="search" name="searchBorrow" id="searchBorrow" placeholder="Search here...">
                                         <button type="submit" class="absolute right-0 top-0 mt-4 mr-4">
                                             <svg class="text-gray-600 h-4 w-4 fill-current"
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -62,6 +62,8 @@
                                             </th>
                                             <th class="py-3 px-8 border-b border-gray-200 w-[16rem]">
                                                 BORROWED BOOK
+                                            <th class="py-3 px-8 border-b border-gray-200 w-[16rem]">
+                                                BORROW STATUS
                                             </th>
                                             <th class="py-3 px-8 border-b border-gray-200 w-[16rem]">
                                                 DATE BORROWED
@@ -84,7 +86,7 @@
                                     <div class="w-full relative mx-auto text-gray-600">
                                         <input
                                             class=" w-full border-2 bg-white h-10 px-5 rounded-md text-lg focus:outline p-6"
-                                            type="searchReturn" name="search" placeholder="Search here..." id="searchReturnInput">
+                                            type="search" name="searchReturn" id="searchReturn" placeholder="Search here...">
                                         <button type="submit" class="absolute right-0 top-0 mt-4 mr-4">
                                             <svg class="text-gray-600 h-4 w-4 fill-current"
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -124,20 +126,6 @@
 
                                     <tbody id="tableBodyReturned">
                       
-                                        <tr class="text-center">
-                                            <td class="py-2 px-8 border-b border-gray-200 font-semibold">
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200 font-semibold">
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200">
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200">
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200">
-                                            </td>
-                                            <td class="py-2 px-8 border-b border-gray-200">
-                                            </td>
-                                        </tr>
                                     </tbody>
                                 </table>
 
@@ -164,55 +152,60 @@
 <script type="text/javascript">
 
 $(document).ready(function () {
-    fetchReturnHistory();
     fetchBorrowHistory();
+    fetchReturnHistory();
+    var searchBorrow = '';
+    var searchReturn = '';
+
 
 
     function fetchBorrowHistory(page = 1) {
-        var tableBody = $('#tableBodyBorrowed');
-        tableBody.empty();
-
         $.ajax({
             url: '/api/history/borrow',
             type: 'GET',
             dataType: 'json',
             data: {
-                sortColumn: 'borrower_id',
-                sortOrder: 'asc',
-                search: '',
+                // sortColumn: 'created_at',
+                // sortOrder: 'asc',
+                search: searchBorrow,
                 limit: 10,
                 page: page,
             },
             success: function (data) {
+               
+                $('#tableBodyBorrowed').empty();
+
+
                 if (data.data.length > 0) {
                     $.each(data.data, function (index, borrow) {
+                        
                         // Access related 'borrower' data
                         var patronName = borrow.borrower ? borrow.borrower.first_name+ ' ' + borrow.borrower.last_name: '';
                         var patronType = borrow.borrower ? borrow.borrower.type : '';
                         var bookTitle = borrow.book ? borrow.book.title : '';
+                        var bookStatus = borrow ? borrow.borrow_status : '';
 
-                        tableBody.append(
+                        $('#tableBodyBorrowed').append(
                             '<tr class="text-center">' +
                             '<td class="py-3 px-8 border-b border-gray-200">' + (index+1) + '</td>' +
                             '<td class="py-3 px-8 border-b border-gray-200">' + patronName + '</td>' +
                             '<td class="py-3 px-8 border-b border-gray-200">' + patronType + '</td>' +
                             '<td class="py-3 px-8 border-b border-gray-200">' + bookTitle + '</td>' +
+                            '<td class="py-3 px-8 border-b border-gray-200">' + bookStatus + '</td>' +
                             '<td class="py-3 px-8 border-b border-gray-200">' + formatDate(borrow.created_at) + '</td>' +
                             '</tr>'
                         );
                     });
                 } else {
-                    // Display a message if no records found
-                    tableBody.append(
+                    $('#tableBodyBorrowed').append(
                         '<tr class="text-center">' +
-                        '<td class="py-8 px-8 border-b border-gray-200 text-gray-500" colspan="5">' +
+                        '<td class="py-8 px-8 border-b border-gray-200 text-gray-500" colspan="6">' +
                         'No existing records found.' +
                         '</td>' +
                         '</tr>'
                     );
                 }
 
-                // Corrected container ID here
                 $('#pagination-container-borrow').html(data.links);
             },
             error: function (error) {
@@ -221,6 +214,8 @@ $(document).ready(function () {
         });
     }
 
+    fetchBorrowHistory();
+
     // Event listener for pagination links
     $(document).on('click', '#pagination-container-borrow a', function (e) {
         e.preventDefault();
@@ -228,42 +223,46 @@ $(document).ready(function () {
         fetchBorrowHistory(page);
     });
 
-    function fetchReturnHistory(page = 1) {
-        var tableBody = $('#tableBodyReturned');
-        var paginationContainer = $('#pagination-container-return');
-        tableBody.empty();
 
+    $('#searchBorrow').on('input', function () {
+        fetchBorrowHistory();
+        searchBorrow = $(this).val();
+    });
+
+    ////////////////////////////////
+    function fetchReturnHistory(page = 1) {
         $.ajax({
             url: '/api/history/return',
             type: 'GET',
             dataType: 'json',
             data: {
-                sortColumn: 'borrower_id',
-                sortOrder: 'asc',
-                search: '',
+                // sortColumn: 'created_at',
+                // sortOrder: 'asc',
+                search: searchReturn,
                 limit: 10,
                 page: page,
             },
             success: function (data) {
+               
+                $('#tableBodyReturned').empty();
 
-                console.log(data);
-                if (data && data.data && data.data.length > 0) {
+                if (data.data.length > 0) {
                     $.each(data.data, function (index, returnHistory) {
-                        tableBody.append(
+
+
+                        $('#tableBodyReturned').append(
                             '<tr class="text-center">' +
-                            '<td class="py-3 px-8 border-b border-gray-200">' + (index + 1) + '</td>' +
-                            '<td class="py-3 px-8 border-b border-gray-200">' + returnHistory.borrow_id + '</td>' +
-                            '<td class="py-3 px-8 border-b border-gray-200">' + returnHistory.borrower.first_name +" " + returnHistory.borrower.last_name  + '</td>' +
-                            '<td class="py-3 px-8 border-b border-gray-200">' + returnHistory.borrower.type + '</td>' +
-                            '<td class="py-3 px-8 border-b border-gray-200">' + returnHistory.book.title + '</td>' +
-                            '<td class="py-3 px-8 border-b border-gray-200">' + formatDate(returnHistory.created_at) + '</td>' +
+                                '<td class="py-3 px-8 border-b border-gray-200">' + (index + 1) + '</td>' +
+                                '<td class="py-3 px-8 border-b border-gray-200">' + returnHistory.borrow_id + '</td>' +
+                                '<td class="py-3 px-8 border-b border-gray-200">' + returnHistory.borrower.first_name +" " + returnHistory.borrower.last_name  + '</td>' +
+                                '<td class="py-3 px-8 border-b border-gray-200">' + returnHistory.borrower.type + '</td>' +
+                                '<td class="py-3 px-8 border-b border-gray-200">' + returnHistory.book.title + '</td>' +
+                                '<td class="py-3 px-8 border-b border-gray-200">' + formatDate(returnHistory.updated_at) + '</td>' +
                             '</tr>'
                         );
                     });
-
-
                 } else {
-                    tableBody.append(
+                    $('#tableBodyReturned').append(
                         '<tr class="text-center">' +
                         '<td class="py-8 px-8 border-b border-gray-200 text-gray-500" colspan="6">' +
                         'No existing records found.' +
@@ -274,16 +273,25 @@ $(document).ready(function () {
 
                 $('#pagination-container-return').html(data.links);
             },
-            error: function (xhr, status, error) {
-                console.error('Error fetching data:', error);
+            error: function (error) {
+                console.log('Error fetching data:', error);
             }
         });
     }
 
-        $(document).on('click', '#pagination-container-return    a', function (e) {
+    fetchReturnHistory();
+
+    // Event listener for pagination links
+    $(document).on('click', '#pagination-container-return a', function (e) {
         e.preventDefault();
         var page = $(this).attr('href').split('page=')[1];
         fetchReturnHistory(page);
+    });
+
+
+    $('#searchReturn').on('input', function () {
+        fetchReturnHistory();
+        searchReturn = $(this).val();
     });
 
 

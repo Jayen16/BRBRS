@@ -130,6 +130,8 @@
                                         statusValue = 'Return Book';
                                     } else if ('{{ $selectedBook->status }}' === 'available') {
                                         statusValue = 'Borrow Book';
+                                    } else if ('{{ $selectedBook->status }}' === 'returned') {
+                                        statusValue = 'Returned Book';
                                     }
                                     showModal = true;
                                     sessionStorage.setItem('statusValue', statusValue);

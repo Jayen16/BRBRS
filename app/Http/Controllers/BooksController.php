@@ -116,7 +116,7 @@ class BooksController extends Controller
                     'status' => 'required|string', 
                     'isbn' => 'nullable|string', 
                     'category' => 'required|string',
-                    'condition' => 'required|string',
+                    'condition' => 'nullable|string',
                     'book_image' => 'nullable|image|mimes:jpeg,png,jpg',
                     'edition' => 'nullable|string',
                     'publisher' => 'nullable|string',
@@ -232,10 +232,25 @@ class BooksController extends Controller
     }
     
 
+
     public function destroy($book_id)
-    {
-        Book::find($book_id)->delete();
+    {    
      
-        return response()->json(['success'=>'Book deleted successfully.']);
+        try {
+            $book = Book::find($book_id);
+
+            if(!$book){
+                return response()->json(['error'=>'Book not found.']);       
+            }
+
+            $book->delete();
+            return response()->json(['success'=>'Book deleted successfully.']);
+        
+
+        } catch (\Exception $e) {
+            return response()->json([ 'error' => 'Failed to delete book', 'message' => $e->getMessage() ], 500);
+        }
+
     }
+
 }

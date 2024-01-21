@@ -58,29 +58,35 @@ class PatronController extends Controller
 
 
 
-    public function getPatronAndBook($patron_id ,$book_id)
+    public function getPatronAndBook($patron_id, $book_id)
     {
         $patron = Patron::where('patron_id', $patron_id)->first();
         $book = Book::where('id', $book_id)->first();
-        
-        if ($patron && $book) {
-            
-            $data = [
-                'patron' => $patron,
-                'book' => $book,
-                'success' => true,
-                'message' => 'Existing patron',
-            ];
-        
-            return response()->json($data);
+    
+        if ($patron) {
+            if ($patron->registration_status == 'Registered') {
+                if ($patron && $book) {
+                    $data = [
+                        'patron' => $patron,
+                        'book' => $book,
+                        'success' => true,
+                        'message' => 'Existing patron',
+                    ];
+    
+                    return response()->json($data);
+                } else {
+                    return response()->json(['error' => 'Book is not found'], 404);
+                }
+            } else {
+                return response()->json(['error' => 'Patron is not currently registered.'], 404);
+            }
         } else {
             return response()->json(['error' => 'Patron is not found'], 404);
         }
-        
     }
+    
 
-
-
+        
     public function store(Request $request)
     {
         if (!$request->isMethod('post')) {

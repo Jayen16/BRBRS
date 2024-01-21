@@ -15,7 +15,7 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\PatronController;
 
 
-Route::post('/auth/login', [AuthController::class, 'login'])->name('login');
+Route::post('/auth/login', [AuthController::class, 'login'])->name('logins');
 
 Route::post('/auth/register', [AuthController::class, 'register'])->name('registerLibrarian');
 
@@ -29,7 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/user', [AuthController::class, 'user']);
     //accept application/json, authorizeion Bearer + 
 
-    Route::get('/auth/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/auth/logout', [AuthController::class, 'logout'])->name('logouts');
 
 });
 

@@ -112,15 +112,30 @@
 
                         if(data.success){
                             lagayValueSaInputFields(data);
+                        }else{
+                            Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.error,
+                        });
                         }
                                 
                     },
                     error: function(xhr, status, error) {
                         clearFormFields();
+                        let errorMessage = 'An error occurred.';
+                        if (xhr.responseText) {
+                            try {
+                                const responseJson = JSON.parse(xhr.responseText);
+                                errorMessage = responseJson.error || xhr.responseText;
+                            } catch (e) {
+                                errorMessage = xhr.responseText;
+                            }
+                        }
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
-                            text: 'This RFID ID is not yet registered.',
+                            text: errorMessage,
                         });
                     }
                 });
@@ -154,9 +169,7 @@
     }
 
 
-
 });
-
 
 
     function performTransaction(transaction,bookId, rfidId) {
@@ -176,13 +189,20 @@
                 }
             },
             error: function(xhr, status, error) {
-                // Handle AJAX errors here
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: error,
-                    // text: 'This patron is not the last borrower of this book.',
-                });
+                let errorMessage = 'An error occurred.';
+                        if (xhr.responseText) {
+                            try {
+                                const responseJson = JSON.parse(xhr.responseText);
+                                errorMessage = responseJson.error || xhr.responseText;
+                            } catch (e) {
+                                errorMessage = xhr.responseText;
+                            }
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: errorMessage,
+                        });
             }
         });
 
@@ -192,7 +212,10 @@
 
     $('#borrowBtn').off('click').on('click', function() {
         var status_transaction = $('#modal-title').text();
-        var transaction = (status_transaction === 'Borrow Book') ? 'Borrow' : (status_transaction === 'Return Book') ? 'Return' : '';
+
+        var transaction = (status_transaction === 'Borrow Book') ? 'Borrow' : 
+                  (status_transaction === 'Return Book') ? 'Return' : 
+                  (status_transaction === 'Returned Book') ? 'Returned' : '';
 
         const bookId = "{{ $bookId }}";
         var rfidId = $('#borrow_book_id').val().trim();

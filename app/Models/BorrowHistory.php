@@ -9,13 +9,9 @@ class BorrowHistory extends Model
 {
     use HasFactory;
     
-    // protected $table = 'id';
     protected $guarded = [];
 
-    // public function book()
-    // {
-    //     return $this->belongsTo(Book::class, 'book_id');
-    // }
+
 
     public function book()
     {

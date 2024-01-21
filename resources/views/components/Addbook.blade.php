@@ -60,9 +60,9 @@
                                     required>
                                     <option selected disabled placeholder="select option">select
                                         condition</option>
-                                    <option value="available">New</option>
-                                    <option value="borrowed">Slightly used</option>
-                                    <option value="missing">Old</option>
+                                    <option value="New">New</option>
+                                    <option value="Slightly used">Slightly used</option>
+                                    <option value="Old">Old</option>
                                 </select>
                             </div>
                             <div class="w-1/4 px-3">
@@ -78,6 +78,7 @@
                                         status</option>
                                     <option value="available">Available</option>
                                     <option value="borrowed">Borrowed</option>
+                                    <option value="returned">Returned</option>
                                     <option value="missing">Missing</option>
                                 </select>
                             </div>

@@ -151,7 +151,7 @@
                          renderTable(data.data);
                          $('#pagination-links').html(data.links);
                      } else if (data.message) {
-                         tableBody.html('<tr><td colspan="6" class="text-center">' + data.message + '</td></tr>');
+                         tableBody.html('<tr class="text-center"><td class="py-8 px-8 border-b border-gray-200 text-gray-500" colspan="6">' + data.message + '</td></tr>');
                      } 
                  },
                 error: function (error) {
@@ -480,6 +480,8 @@
                     type: "PUT",
                     dataType:'json',
                     success: function (data) {
+
+                        
                         $('#bookForm').trigger("reset");
                         let alpineInstance = document.getElementById('ajaxModal');
 
@@ -526,6 +528,9 @@
                 contentType: false,
                 processData: false,
                 success: function (data) {
+
+                    
+
                     $('#bookForm').trigger("reset");
                     let alpineInstance = document.getElementById('ajaxModal');
 
