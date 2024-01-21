@@ -19,6 +19,7 @@ class DashboardContent extends Controller
         $awaitingtoReturnBooksCount = BorrowHistory::where('borrow_status', '==', 'borrowed')->count();
         $numberOfLibrarians = User::count();
 
+
         return response()->json([
             'borrowed_books_count' => $borrowedBooksCount,
             'returned_books_count' => $returnedBooksCount,

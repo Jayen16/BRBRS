@@ -79,7 +79,7 @@
                             </div>
                         </div>
 
-                        <div class="w-full shadow-md mt-1 overflow-y-auto max-h-[70vh]">
+                        <div class="w-full mt-1 overflow-y-auto max-h-[70vh]">
                             <table class="table table-bordered table-hover rounded-md shadow-md mt-2 "
                                 style="background: white;" width="100%" id="data-table">
                                 <thead class="bg-green-800 text-white text-left sticky top-0 z-10">
@@ -103,9 +103,6 @@
                                         <th class="py-3 px-8 border-b border-gray-200 w-[16rem]" name="action">
                                             ACTION                                                
                                         </th>
-
-                                    
-
                                     </tr>
                                 </thead>
 
@@ -143,7 +140,7 @@
                 data: {
                     page: page,
                     search: search,
-                    limit: 1,
+                    limit: 10,
 
                 },
                 success: function (data) {

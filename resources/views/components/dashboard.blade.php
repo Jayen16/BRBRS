@@ -241,6 +241,8 @@
       url: "{{ route('dashboard.content') }}",
       type: 'GET',
       success: function (data) {
+
+
           chartPercentage1.data.datasets[0].data = [data.borrowed_books_count, data.awaiting_books_count];
           chartPercentage1.update();
 

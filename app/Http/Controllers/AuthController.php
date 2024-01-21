@@ -75,6 +75,8 @@ class AuthController extends Controller
     
         if ($user && Hash::check($request->password, $user->password)) {
             $token = $user->createToken('auth-token')->plainTextToken;
+            // session()->put('name', $user->name);
+
     
             return response()->json([
                 'message' => 'Login Successful',
@@ -103,6 +105,9 @@ class AuthController extends Controller
       
         $request->user()->currentAccessToken()->delete();
 
+        session()->flush();
+        session()->regenerate();
+        
         return response()->json([
             'message' => 'User successfully logged out',
         ], 200);

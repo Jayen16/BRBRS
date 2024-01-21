@@ -109,12 +109,11 @@
                     data: formData,
                     success: function(response) {
                         if (response.message === 'Login successful') {
-                            // Redirect to the dashboard on successful login
                             window.location.href = response.dashboard_url;
+
+
                         } else if (response.message === 'Email not yet verified') {
-                            // Handle the case where email is not verified
                             alert('Email not verified! Please verify your email.');
-                            // You might want to redirect or handle this differently
                         } else {
                             console.log('Login unsuccessful');
                         }
