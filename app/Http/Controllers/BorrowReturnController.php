@@ -116,10 +116,10 @@ class BorrowReturnController extends Controller
   
 
 
-    public function show($id) {
+    public function show($book_id) {
 
         $display = BorrowHistory::with('borrower')
-        ->where('book_id', $id)
+        ->where('book_id', $book_id)
         ->orderBy('created_at', 'desc') // Order by created_at in descending order
         ->limit(5) // Limit the results to the most recent 5 records
         ->get();

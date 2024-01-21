@@ -144,13 +144,16 @@
 
                 },
                 success: function (data) {
-                    if (data.data.length > 0) {
-                        renderTable(data.data);
-                        $('#pagination-links').html(data.links);
-                    } else {
-                        $("#bookTable").html('<tr><td colspan="6" class="text-center">No records found</td></tr>');
-                    }
-                },
+                    var tableBody = $("#bookTable");
+                     tableBody.empty();
+                            
+                     if (data.data && data.data.length > 0) {
+                         renderTable(data.data);
+                         $('#pagination-links').html(data.links);
+                     } else if (data.message) {
+                         tableBody.html('<tr><td colspan="6" class="text-center">' + data.message + '</td></tr>');
+                     } 
+                 },
                 error: function (error) {
                     console.log("Error:", error);
                 },

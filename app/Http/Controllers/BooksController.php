@@ -80,19 +80,24 @@ class BooksController extends Controller
             });
         }
     
-    
         $sortColumn = $request->input('sortColumn', 'id');
         $sortOrder = $request->input('sortOrder', 'asc');
         $query->orderBy($sortColumn, $sortOrder);
     
-        $limit = $request->input('limit', 10); 
+        $limit = $request->input('limit', 10);
         $result = $query->paginate($limit);
+    
+        if ($result->isEmpty()) {
+            return response()->json(['message' => 'No books found in this category.']);
+        }
     
         return response()->json([
             'data' => $result->items(),
             'links' => $result->links()->toHtml(),
         ]);
     }
+    
+
 
    
 
