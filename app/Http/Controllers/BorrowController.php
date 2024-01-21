@@ -22,9 +22,9 @@ class BorrowController extends Controller
 
 
 
-    public function show($id)
+    public function show($book_id)
     {
-        $selectedBook = Book::find($id);
+        $selectedBook = Book::find($book_id);
     
         if (!$selectedBook) {
             return response()->json(['error' => 'Book not found'], 404);

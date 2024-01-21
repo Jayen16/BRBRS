@@ -58,9 +58,9 @@ class PatronController extends Controller
 
 
 
-    public function getPatronAndBook($id ,$book_id)
+    public function getPatronAndBook($patron_id ,$book_id)
     {
-        $patron = Patron::where('patron_id', $id)->first();
+        $patron = Patron::where('patron_id', $patron_id)->first();
         $book = Book::where('id', $book_id)->first();
         
         if ($patron && $book) {
@@ -139,7 +139,7 @@ class PatronController extends Controller
     }
 
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $school_id)
     {
 
            
@@ -147,7 +147,7 @@ class PatronController extends Controller
         $existingPatron = Patron::where('patron_id', $request->input('patron_id'))->orWhere('school_id', $request->input('school_id'))->first();
 
 
-        if ($existingPatron && $existingPatron->school_id == $id) {
+        if ($existingPatron && $existingPatron->school_id == $school_id) {
 
   
             $validator = Validator::make($request->all(), [       

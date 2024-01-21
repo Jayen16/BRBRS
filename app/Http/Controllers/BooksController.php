@@ -155,14 +155,14 @@ class BooksController extends Controller
 
 
         
-        public function update(Request $request, $id)
+        public function update(Request $request, $book_id)
         {
             if (!$request->isMethod('put')) {
                 return response()->json(['error' => 'Method Not Allowed'], 405);
             }
         
             try {
-                $book = Book::find($id);
+                $book = Book::find($book_id);
         
                 if (!$book) {
                     return response()->json(['error' => 'Book not found'], 404);
@@ -215,9 +215,9 @@ class BooksController extends Controller
 
 
 
-    public function show ($id)
+    public function show ($book_id)
     {
-        $book = Book::find($id);
+        $book = Book::find($book_id);
     
         if ($book) {
             return response()->json($book);
@@ -227,9 +227,9 @@ class BooksController extends Controller
     }
     
 
-    public function destroy($id)
+    public function destroy($book_id)
     {
-        Book::find($id)->delete();
+        Book::find($book_id)->delete();
      
         return response()->json(['success'=>'Book deleted successfully.']);
     }
