@@ -49,7 +49,7 @@
                              
                                 </div> --}}
                                 <table class="w-full bg-white border border-gray-200 rounded-md shadow-md mt-2" id="borrow-table">
-                                    <thead class="bg-green-800 text-white text-left sticky top-0 z-10">
+                                    <thead id="tableBodyBorrowed-th" class="bg-green-800 text-white text-left sticky top-0 z-10">
                                         <tr class="bg-green-800 text-white text-center">
                                             <th class="py-3 px-8 border-b border-gray-200 w-[16rem] rounded-tl">
                                                 BORROW NO.
@@ -101,7 +101,7 @@
                                     </div>
                                 </div>
                                 <table class="w-full bg-white border border-gray-200 rounded-md shadow-md mt-2" id="return-table">
-                                    <thead class="bg-green-800 text-white text-left sticky top-0 z-10">
+                                    <thead id="tableBodyReturned-th" class="bg-green-800 text-white text-left sticky top-0 z-10">
                                         <tr class="bg-green-800 text-white text-center">
                                             <th class="py-3 px-8 border-b border-gray-200 w-[16rem] rounded-tl">
                                                 RETURN NO.
@@ -156,6 +156,8 @@ $(document).ready(function () {
     fetchReturnHistory();
     var searchBorrow = '';
     var searchReturn = '';
+    var sortColumn = 'created_at';
+    var sortOrder = 'asc';
 
 
 
@@ -165,8 +167,8 @@ $(document).ready(function () {
             type: 'GET',
             dataType: 'json',
             data: {
-                // sortColumn: 'created_at',
-                // sortOrder: 'asc',
+                sortColumn: sortColumn,
+                sortOrder: sortOrder,
                 search: searchBorrow,
                 limit: 10,
                 page: page,
@@ -223,6 +225,15 @@ $(document).ready(function () {
         fetchBorrowHistory(page);
     });
 
+    $('#tableBodyBorrowed-th').on('click', function () {
+                var column = $(this).data('column');
+    
+                sortOrder = (sortColumn === column && sortOrder === 'asc') ? 'desc' : 'asc';
+    
+                sortColumn = column;
+    
+                fetchBorrowHistory();
+         });
 
     $('#searchBorrow').on('input', function () {
         fetchBorrowHistory();
@@ -236,8 +247,8 @@ $(document).ready(function () {
             type: 'GET',
             dataType: 'json',
             data: {
-                // sortColumn: 'created_at',
-                // sortOrder: 'asc',
+                sortColumn: sortColumn,
+                sortOrder: sortOrder,
                 search: searchReturn,
                 limit: 10,
                 page: page,
@@ -294,6 +305,15 @@ $(document).ready(function () {
         searchReturn = $(this).val();
     });
 
+    $('#tableBodyReturned-th').on('click', function () {
+                var column = $(this).data('column');
+    
+                sortOrder = (sortColumn === column && sortOrder === 'asc') ? 'desc' : 'asc';
+    
+                sortColumn = column;
+    
+                fetchReturnHistory();
+         });
 
     function formatDate(dateString) {
         const date = new Date(dateString);

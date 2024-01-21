@@ -25,7 +25,8 @@ class BorrowReturnController extends Controller
     
     public function showBorrowHistory(Request $request)
     {
-
+        $sortColumn = $request->input('sortColumn', 'created_at');
+        $sortOrder = $request->input('sortOrder', 'asc');
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 10); // Ensure a minimum limit of 1
         $search = $request->input('search');
@@ -48,9 +49,8 @@ class BorrowReturnController extends Controller
             });
         }
         
-
-        // Paginate the result
-         $result = $query->paginate($limit, ['*'], 'page', $page);
+        $query->orderBy($sortColumn, $sortOrder);
+        $result = $query->paginate($limit, ['*'], 'page', $page);
 
         return response()->json([
             'data' => $result->items(),
@@ -63,6 +63,8 @@ class BorrowReturnController extends Controller
 
     public function showReturnHistory(Request $request)
     {
+        $sortColumn = $request->input('sortColumn', 'created_at');
+        $sortOrder = $request->input('sortOrder', 'asc');
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 10); // Ensure a minimum limit of 1
         $search = $request->input('search');
@@ -82,7 +84,7 @@ class BorrowReturnController extends Controller
             });
         }
     
-            // Paginate the result
+            $query->orderBy($sortColumn, $sortOrder);
             $result = $query->paginate($limit, ['*'], 'page', $page);
 
             return response()->json([
