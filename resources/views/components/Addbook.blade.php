@@ -18,7 +18,7 @@
                                 <label
                                     class="block tracking-wide text-gray-700 text-md font-medium mb-1"
                                     for="">
-                                    ISBN No.
+                                    ISBN No.<span style="color: red;">*</span>
                                 </label>
                                 <input
                                     class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700 font-bold"
@@ -31,7 +31,7 @@
                                 <label
                                     class="block tracking-wide text-gray-700 text-md font-medium mb-1"
                                     for="">
-                                    Category
+                                    Category<span style="color: red;">*</span>
                                 </label>
                                 <select id="category" name="category" 
                                     class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"
@@ -70,7 +70,7 @@
                                 <label
                                     class="block tracking-wide text-gray-700 text-md font-medium mb-1"
                                     for="">
-                                    Status
+                                    Status<span style="color: red;">*</span>
                                 </label>
                                 <select id="status" name="status" 
                                     class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"
@@ -109,7 +109,8 @@
                                 <label
                                     class="block tracking-wide text-gray-700 text-md font-medium mb-1"
                                     for="">
-                                    Title
+                                    Title <span style="color: red;">*</span>
+
                                 </label>
                                 <input id="title" name="title" 
                                     class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"
@@ -142,7 +143,8 @@
                                 <label
                                     class="block tracking-wide text-gray-700 text-md font-medium mb-1"
                                     for="">
-                                    Author/s
+                                    Author/s <span style="color: red;">*</span>
+
                                 </label>
                                 <input id="author" name="author"
                                     class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"

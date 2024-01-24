@@ -138,10 +138,10 @@ class PatronController extends Controller
             'patron_id' => 'required|string|unique:patrons,patron_id',
             'school_id' => 'required|string|unique:patrons,school_id',
             'first_name' => 'required|string',
-            'middle_name' => 'required|string',
+            'middle_name' => 'nullable|string',
             'last_name' => 'required|string',
             'sex' => 'nullable|string',
-            'type' => 'nullable|string',
+            'type' => 'required|string',
             'program' => 'nullable|string',
             'registration_status' => 'required|string',
         ]);

@@ -182,23 +182,25 @@
 
         function updateBookDetails(selectedBook) {
 
-                // Populate HTML elements with book details
                 $('#book-title').text(selectedBook.title);
                 document.title = $('#book-title').text(); // title ng page
 
-                $('#book-location_rack').text(selectedBook.location_rack);
-                $('#book-edition').text(selectedBook.edition)
-                $('#book-author').text(selectedBook.author);
-                $('#book-publisher').text(selectedBook.publisher);
-                $('#book-copyright_year').text(selectedBook.copyright_year);
-                $('#book-category').text(selectedBook.category);
-                $('#book-condition').text(selectedBook.condition);
-                $('#book-isbn').text(selectedBook.isbn);
+                $('#book-location_rack').text(selectedBook.location_rack || 'None');
 
-                $('#book-main-title').text(selectedBook.title);
+                $('#book-edition').text(selectedBook.edition || 'None');
+                $('#book-author').text(selectedBook.author || 'None');
+                $('#book-publisher').text(selectedBook.publisher || 'None');
+                $('#book-copyright_year').text(selectedBook.copyright_year || 'None');
+                $('#book-category').text(selectedBook.category || 'None');
+                $('#book-condition').text(selectedBook.condition || 'None');
+                $('#book-isbn').text(selectedBook.isbn || 'None');
+
+                $('#book-main-title').text(selectedBook.title || 'None');
 
 
-                $('#book-description').text(selectedBook.description);
+                var descriptionText = selectedBook.description || "No description available";
+                $('#book-description').text(descriptionText);
+
 
                 //CAPITALIZE LANG FIRST LETTER
                 var book_status = selectedBook.status.toLowerCase();
@@ -236,6 +238,7 @@
                 },
                 error: function(xhr, status, error) {
                     console.error(xhr.responseText);
+                    updateBorrowingHistory([]);
                 }
             });
         }
@@ -245,7 +248,6 @@
 
         function updateBorrowingHistory(historyArray) {
     
-                // console.log(historyArray);
                 $('#tableBody').empty();
 
                 if (historyArray.length === 0) {

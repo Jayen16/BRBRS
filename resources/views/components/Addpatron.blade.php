@@ -15,7 +15,7 @@
                         <div class="flex flex-row mb-1">
                           <div class="w-1/2 px-3 mb-3">
                             <label class="block tracking-wide text-gray-700 text-md font-medium mb-1" for="">
-                              School / Employee Number
+                              School / Employee Number<span style="color: red;">*</span>
                             </label>
                             <input
                               class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700 font-semibold"
@@ -24,7 +24,7 @@
                           </div>
                           <div class="w-1/2 px-3 mb-3">
                             <label class="block tracking-wide text-gray-700 text-md font-medium mb-1" for="">
-                              Patron ID
+                              Patron ID<span style="color: red;">*</span>
                             </label>
                             <input
                               class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700 font-semibold"
@@ -39,7 +39,7 @@
                         <div class="flex flex-row mb-1">
                           <div class="w-1/3 px-3 mb-2">
                             <label class="block tracking-wide text-gray-700 text-md font-medium mb-1" for="">
-                              Last Name
+                              Last Name<span style="color: red;">*</span>
                             </label>
                             <input
                               class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"
@@ -49,7 +49,7 @@
                           </div>
                           <div class="w-1/3 px-3 mb-2">
                             <label class="block tracking-wide text-gray-700 text-md font-medium mb-1" for="">
-                              First Name
+                              First Name<span style="color: red;">*</span>
                             </label>
                             <input
                               class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"
@@ -74,7 +74,7 @@
                         <div class="flex flex-row mb-1 mt-2">
                             <div class="w-1/3 px-3 mb-3">
                                 <label class="block tracking-wide text-gray-700 text-md font-medium mb-1" for="">
-                                  Patron Type
+                                  Patron Type<span style="color: red;">*</span>
                                 </label>
                                 <select id="type" name="type"
                                   class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"
@@ -90,7 +90,7 @@
 
                             <div id="programContainer" class="w-2/3 px-3" style="display: none;">
                                 <label class="block tracking-wide text-gray-700 text-md font-medium mb-1" for="">
-                                  Program
+                                  Program<span style="color: red;">*</span>
                                 </label>
                                 <select id="program" name="program"
                                   class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"
@@ -170,7 +170,7 @@
                           </div>
                           <div class="w-1/3 px-3">
                             <label class="block tracking-wide text-gray-700 text-md font-medium mb-1" for="">
-                              Registration Status
+                              Registration Status<span style="color: red;">*</span>
                             </label>
                             <select id="registration_status" name="registration_status"
                               class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700"

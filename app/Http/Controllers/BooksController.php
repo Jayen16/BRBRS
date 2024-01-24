@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use App\Models\BorrowHistory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -112,9 +113,9 @@ class BooksController extends Controller
                 $validatedData = $request->validate([
                     'title' => 'required|string',
                     'author' => 'required|string',
-                    'location_rack' => 'required|string',
+                    'location_rack' => 'nullable|string',
                     'status' => 'required|string', 
-                    'isbn' => 'nullable|string', 
+                    'isbn' => 'required|string', 
                     'category' => 'required|string',
                     'condition' => 'nullable|string',
                     'book_image' => 'nullable|image|mimes:jpeg,png,jpg',
