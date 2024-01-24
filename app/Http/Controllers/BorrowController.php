@@ -27,12 +27,20 @@ class BorrowController extends Controller
         $selectedBook = Book::find($book_id);
     
         if (!$selectedBook) {
-            return response()->json(['error' => 'Book not found'], 404);
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'error' => 'Book not found',
+            ], 404);
         }
     
-        return response()->json(['book' => $selectedBook]);
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'book' => $selectedBook,
+        ], 200);
     }
-
+    
 
     public function displayshow($id)
     {
@@ -68,12 +76,22 @@ class BorrowController extends Controller
                             $recordBorrow->attending_librarian_id = auth()->user()->id ;
                             $recordBorrow->save();
         
-                            return response()->json(['success' => 'The book is now borrowed by '.$recordBorrow->borrower->first_name.' '.$recordBorrow->borrower->last_name], 200);
+                            return response()->json([
+                                'status' => 'success',
+                                'code' => 200,
+                                'success' => 'The book is now borrowed by ' . $recordBorrow->borrower->first_name . ' ' . $recordBorrow->borrower->last_name,
+                            ], 200);
+                            
 
-                        }else{
-
-                            return response()->json(['error' => 'already borrowed by other patrons'], 404);
                         }
+                }else{
+
+                    return response()->json([
+                        'status' => 'error',
+                        'code' => 404,
+                        'error' => 'Already borrowed by other patrons',
+                    ], 404);
+                    
                 }
 
 
@@ -117,24 +135,43 @@ class BorrowController extends Controller
                                 Book::where('id', $id)
                                 ->update(['status' => 'available']);
                     
-                                return response()->json(['success' => 'The book has returned successfully'], 200);
+                                return response()->json([
+                                    'status' => 'success',
+                                    'code' => 200,
+                                    'success' => 'The book has returned successfully',
+                                ], 200);
+                                
 
                             } else {
 
-                                return response()->json(['error' => 'The book is not currently borrowed'], 404);
+                                return response()->json([
+                                    'status' => 'error',
+                                    'code' => 404,
+                                    'error' => 'The book is not currently borrowed',
+                                ], 404);
+                                
                                 
                             }
 
                         }                                    
                         else{
-                             return response()->json(['error' => 'This patron is not the last borrower of this book'], 404);
+                            return response()->json([
+                                'status' => 'error',
+                                'code' => 404,
+                                'error' => 'This patron is not the last borrower of this book',
+                            ], 404);
+                            
 
-                        }
-                                               
+                        }                                            
                         
                 }
                 else{
-                    return response()->json(['error' => 'The book is not currently borrowed'], 404);
+                    return response()->json([
+                        'status' => 'error',
+                        'code' => 404,
+                        'error' => 'The book is not currently borrowed',
+                    ], 404);
+                    
                 }
                 
 
@@ -163,17 +200,39 @@ class BorrowController extends Controller
                         $recordBorrow->attending_librarian_id = auth()->user()->id ;
                         $recordBorrow->save();
     
-                        $updateBookStatus = $ifBookReturned->update(['status' => 'borrowed']);
 
-                        if($updateBookStatus){
-                            return response()->json(['success' => 'The book is now borrowed by '.$recordBorrow->borrower->first_name.' '.$recordBorrow->borrower->last_name], 200);
-                        }else{
-                            
+                        $bookChangeStatus = Book::where('id', $id)
+                        ->where('status','returned')
+                        ->first();
+
+                        $updateBookStatus = $bookChangeStatus->update(['status' => 'borrowed']);
+
+                        if ($updateBookStatus) {
+                            return response()->json([
+                                'status' => 'success',
+                                'code' => 200,
+                                'success' => 'The book is now borrowed by ' . $recordBorrow->borrower->first_name . ' ' . $recordBorrow->borrower->last_name,
+                                'message' => 'The last patron who did not return will be marked as "failed to return"',
+                            ], 200);
+                        } else {
+                            return response()->json([
+                                'status' => 'error',
+                                'code' => 500, // Adjust the code according to your application's logic
+                                'error' => 'Failed to update book status',
+                                'message' => 'An error occurred while updating the book status',
+                            ], 500);
                         }
+                        
+                        
 
 
                     }else{
-                        return response()->json(['error' => 'The book seems already returned by the last patron'], 404);
+                        return response()->json([
+                            'status' => 'error',
+                            'code' => 404,
+                            'error' => 'The book seems already returned by the last patron',
+                        ], 404);
+                        
                     }
 
                     

@@ -22,9 +22,6 @@ Route::post('/auth/register', [AuthController::class, 'register'])->name('regist
 
 Route::middleware('auth:sanctum')->group(function () {
     
-    // Route::get('/user', function (Request $request) {
-    //     return $request->user();
-    // });
 
     Route::get('/auth/user', [AuthController::class, 'user']);
     //accept application/json, authorizeion Bearer + 
@@ -49,18 +46,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     
     //CATEGORY
-
     Route::get('/category/display', [CategoryController::class, 'index'])->name('CategoryList'); // index
     Route::post('/add/category', [CategoryController::class, 'store'])->name('category.add'); //store
     Route::delete('/delete/category/{category}', [CategoryController::class, 'destroy'])->name('category.delete'); //destroy
-    Route::get('/listbooks/{category}', [BooksController::class, 'showCategory'])->name('showcategory'); // PANG SPECIFIC NA CAREGORY DISPLAY
     
     //BOOK
-    // Route::get('/listbooks/display/{sort}', [BooksController::class, 'index'])->name('BookList'); 
-    // Route::get('/listbooks/display', [BooksController::class, 'index'])->name('BookList'); // PANG ALL DISPLAY
-
+    Route::get('/listbooks/{category}', [BooksController::class, 'showCategory'])->name('showcategory'); // PANG SPECIFIC NA CAREGORY DISPLAY
     Route::get('/edit/book/{book_id}', [BooksController::class, 'show'])->name('editbook'); // show book
-    Route::put('/updatebook/{book_id}', [BooksController::class, 'update'])->name('updatebook');
+    Route::post('/updatebook/{book_id}', [BooksController::class, 'update'])->name('updatebook');
     Route::post('/addbooks', [BooksController::class, 'store'])->name('addbooks'); // store  book 
     Route::delete('/deletebook/{book_id}', [BooksController::class, 'destroy'])->name('deletebook'); 
 

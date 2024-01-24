@@ -454,117 +454,95 @@
 
 
 
+            function clearPreview() {
+                var output = document.getElementById('preview');
+                output.src = '';
+            }
+
         function previewImage(event) {
             var reader = new FileReader();
             reader.onload = function() {
                 var output = document.getElementById('preview');
                 output.src = reader.result;
-            }
+            };
             reader.readAsDataURL(event.target.files[0]);
         }
 
-
          //CREATE AND FOR UPDATE BOOKS
          $('#saveBtn').click(function (e) {
-           
             $(this).html('Save');
-            
-            if ($('#saveBtn').val() === "edit-book"){
-                e.preventDefault();
-                var book_id = $('#book_number_id').val();
-                var formData = $('#bookForm').serialize();
 
-                $.ajax({
-                    data: formData,
-                    url: "{{ url ('/api/updatebook')}}/"+book_id,
-                    type: "PUT",
-                    dataType:'json',
-                    success: function (data) {
-
-                        
-                        $('#bookForm').trigger("reset");
-                        let alpineInstance = document.getElementById('ajaxModal');
-
-                        if (alpineInstance) {
-                            alpineInstance.__x.$data.showModal = false; 
-                        } else {
-                            console.error('#ajaxModal element not found');
-                        }
-                        
-                    let successMessage = data.success;
-                     document.querySelector('[x-data]').__x.$data.showMessage = true;
-                     document.querySelector('[x-data]').__x.$data.successMessage = successMessage;
-                 
-                     setTimeout(() => {
-                         document.querySelector('[x-data]').__x.$data.showMessage = false;
-                         document.querySelector('[x-data]').__x.$data.successMessage = '';
-                     }, 5000);
-
-                        // location.reload();
-                    },
-                    error: function (data) {
-                        console.log('Error:', data);
-                        $('#saveBtn').html('Save');
-                    }
-           });
-
-          }else{
             e.preventDefault();
-                var formData = new FormData;
-                var bookImageFile = $('#book_image')[0].files[0];
-                
-                if (bookImageFile) {
-                        formData.append('book_image', bookImageFile);
-                    }
-                
-                    $('#bookForm').find('input, textarea, select').not('#book_image').each(function () {
-                    formData.append($(this).attr('name'), $(this).val());
-                });
+            var formData = new FormData();
+            var bookImageFile = $('#book_image')[0].files[0];
 
-                $.ajax({
+            if (bookImageFile) {
+                formData.append('book_image', bookImageFile);
+            }
+
+            $('#bookForm').find('input, textarea, select').not('#book_image').each(function () {
+                formData.append($(this).attr('name'), $(this).val());
+            });
+
+            var url;
+            var requestType;
+
+            if ($('#saveBtn').val() === "edit-book") {
+                var book_id = $('#book_number_id').val();
+                url = "{{ url('/api/updatebook')}}/" + book_id;
+                // requestType = "PUT";
+            } else {
+                url = "{{ route('addbooks')}}";
+                requestType = "POST";
+            }
+
+            $.ajax({
                 data: formData,
-                url: "{{ route ('addbooks')}}",
+                url: url,
                 type: "POST",
                 contentType: false,
                 processData: false,
+                headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                 success: function (data) {
-
-                    
-
                     $('#bookForm').trigger("reset");
+                    clearPreview();
                     let alpineInstance = document.getElementById('ajaxModal');
 
                     if (alpineInstance) {
-                        alpineInstance.__x.$data.showModal = false; 
+                        alpineInstance.__x.$data.showModal = false;
                     } else {
                         console.error('#ajaxModal element not found');
                     }
 
                     var bookData = data.book;
 
-                    var newRowHtml = '<tr class="text-center">';
-                    newRowHtml += '<td>' + bookData.isbn + '</td>';
-                    newRowHtml += '<td>' + bookData.title + '</td>';
-                    newRowHtml += '<td>' + bookData.publisher + '</td>';
-                    newRowHtml += '<td>' + bookData.location_rack + '</td>';
-                    newRowHtml += '<td>' + bookData.status + '</td>';
-                    newRowHtml += '<td>' +
-                        '<button x-on:click="showModal = true" href="javascript:void(0)" data-toggle="tooltip" data-id="' + bookData.id + '" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook">Edit</button> ' +
-                        '<button href="javascript:void(0)" data-toggle="tooltip" data-id="' + bookData.id + '" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</button> ' +
-                        '<a href="/description/' + bookData.id + '" data-toggle="tooltip" data-id="' + bookData.id + '" data-original-title="Borrow" class="btn btn-warning btn-sm borrowBook">Transaction</a>' +
-                        '</td>';
-                    newRowHtml += '</tr>';
-                
-                    $('#bookTable').append(newRowHtml);
+                    if ($('#saveBtn').val() !== "edit-book") {
+                        var newRowHtml = '<tr class="text-center">';
+                        newRowHtml += '<td>' + bookData.isbn + '</td>';
+                        newRowHtml += '<td>' + bookData.title + '</td>';
+                        newRowHtml += '<td>' + bookData.publisher + '</td>';
+                        newRowHtml += '<td>' + bookData.location_rack + '</td>';
+                        newRowHtml += '<td>' + bookData.status + '</td>';
+                        newRowHtml += '<td>' +
+                            '<button x-on:click="showModal = true" href="javascript:void(0)" data-toggle="tooltip" data-id="' + bookData.id + '" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook">Edit</button> ' +
+                            '<button href="javascript:void(0)" data-toggle="tooltip" data-id="' + bookData.id + '" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</button> ' +
+                            '<a href="/description/' + bookData.id + '" data-toggle="tooltip" data-id="' + bookData.id + '" data-original-title="Borrow" class="btn btn-warning btn-sm borrowBook">Transaction</a>' +
+                            '</td>';
+                        newRowHtml += '</tr>';
+                    
+                        $('#bookTable').append(newRowHtml);
+                       }
 
-                    let successMessage = data.success;
-                     document.querySelector('[x-data]').__x.$data.showMessage = true;
-                     document.querySelector('[x-data]').__x.$data.successMessage = successMessage;
-                 
-                     setTimeout(() => {
-                         document.querySelector('[x-data]').__x.$data.showMessage = false;
-                         document.querySelector('[x-data]').__x.$data.successMessage = '';
-                     }, 5000);
+                        let successMessage = data.success;
+                        document.querySelector('[x-data]').__x.$data.showMessage = true;
+                        document.querySelector('[x-data]').__x.$data.successMessage = successMessage;
+                    
+                        setTimeout(() => {
+                            document.querySelector('[x-data]').__x.$data.showMessage = false;
+                            document.querySelector('[x-data]').__x.$data.successMessage = '';
+                        }, 5000);
 
                 },
                 error: function (data) {
@@ -572,8 +550,8 @@
                     $('#saveBtn').html('Save');
                 }
             });
-        }
         });
+
 
 
         //EDIT BOOKS

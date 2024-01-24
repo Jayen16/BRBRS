@@ -12,7 +12,7 @@
             @csrf
                 <h1 class="text-2xl font-bold mb-6 text-center">Create your account</h1>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="name">{{ __('Name') }}</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="name">{{ __('Display Name') }}</label>
                 <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
                 @error('name')  
                     <span class="invalid-feedback" role="alert">
@@ -21,13 +21,13 @@
                 @enderror 
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="email">{{ __('username') }}</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="username">{{ __('Username') }}</label>
                     <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" required autocomplete="username">
                 </div>
                 
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="email">{{ __('Email Address') }}</label>
-                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ session('email') }}" autocomplete="email" disabled>
+                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') ?: session('email') }}" autocomplete="email" disabled>
                 
                 @error('email')  
                     <span class="invalid-feedback" role="alert">

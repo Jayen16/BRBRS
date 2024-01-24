@@ -104,14 +104,20 @@
                 var formData = $(this).serialize();
     
                 $.ajax({
-                    url: '{{ route("login") }}',
+                    url: '/api/auth/login',
+                    // url: "{{ route('login') }}",
                     type: 'POST',
                     data: formData,
                     success: function(response) {
                         if (response.message === 'Login successful') {
-                            window.location.href = response.dashboard_url;
+                            // Include the token in subsequent requests
+                            $.ajaxSetup({
+                                headers: {
+                                    'Authorization': 'Bearer ' + response.token
+                                }
+                            });
 
-
+                            window.location.href = '/dashboard';
                         } else if (response.message === 'Email not yet verified') {
                             alert('Email not verified! Please verify your email.');
                         } else {
@@ -120,6 +126,14 @@
                     },
                     error: function(xhr, status, error) {
                         console.error(xhr.responseText);
+
+                        var errorResponse = JSON.parse(xhr.responseText);
+
+                        if (errorResponse.message) {
+                            alert(errorResponse.message);
+                        } else {
+                            alert('Invalid Credentials.');
+                        }
                     }
                 });
             });

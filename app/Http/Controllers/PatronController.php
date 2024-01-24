@@ -48,7 +48,20 @@ class PatronController extends Controller
     
         $result = $query->paginate($limit, ['*'], 'page', $page);
     
+        if ($result->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'error' => 'No existing patrons found.',
+            ], 404);
+        }
+        
+        
+        $result->makeHidden(['created_at', 'updated_at']);
+
         return response()->json([
+            'status' => 'success',
+            'code' => 200,
             'data' => $result->items(),
             'links' => $result->links()->toHtml(),
         ]);
@@ -66,22 +79,50 @@ class PatronController extends Controller
         if ($patron) {
             if ($patron->registration_status == 'Registered') {
                 if ($patron && $book) {
+
                     $data = [
+                        'status' => 'success',
+                        'code' => 200,
+                        'message' => 'Existing patron',
+                        'success' => true,
                         'patron' => $patron,
                         'book' => $book,
-                        'success' => true,
-                        'message' => 'Existing patron',
+                  
                     ];
-    
-                    return response()->json($data);
+                    
+                    if ($patron instanceof \Illuminate\Database\Eloquent\Model) {
+                        $patron->makeHidden(['created_at', 'updated_at']);
+                    }
+                    
+                    if ($book instanceof \Illuminate\Database\Eloquent\Model) {
+                        $book->makeHidden(['created_at', 'updated_at']);
+                    }
+
+                    return response()->json($data, 200);
+                    
                 } else {
-                    return response()->json(['error' => 'Book is not found'], 404);
+                    return response()->json([
+                        'status' => 'error',
+                        'code' => 404,
+                        'error' => 'Book is not found',
+                    ], 404);
+                    
                 }
             } else {
-                return response()->json(['error' => 'Patron is not currently registered.'], 404);
+                return response()->json([
+                    'status' => 'error',
+                    'code' => 404,
+                    'error' => 'Patron is not currently registered.',
+                ], 404);
+                
             }
         } else {
-            return response()->json(['error' => 'Patron is not found'], 404);
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'error' => 'Patron is not found',
+            ], 404);
+            
         }
     }
     
@@ -106,8 +147,13 @@ class PatronController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422); 
+            return response()->json([
+                'status' => 'error',
+                'code' => 422,
+                'error' => $validator->errors(),
+            ], 422);
         }
+        
 
         try {
             $data = $validator->validated(); 
@@ -118,14 +164,20 @@ class PatronController extends Controller
             );
 
             return response()->json([
-                'success' => 'Patron added successfully.'
-            ]);
+                'status' => 'success',
+                'code' => 200,
+                'success' => 'Patron added successfully.',
+            ], 200);
+            
 
         } catch (\Exception $e) {
             return response()->json([
+                'status' => 'error',
+                'code' => 500,
                 'error' => 'Patron failed to add',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
+            
         }
     }
     
@@ -136,19 +188,32 @@ class PatronController extends Controller
     public function show($id)
     {
         $patron = Patron::find($id);
-    
+
         if (!$patron) {
-            return response()->json(['error' => 'Patron not found'], 404);
-        }
-    
-        return response()->json($patron);
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'error' => 'Patron not found',
+            ], 404);
+        }else{
+        
+        $patron->makeHidden(['created_at', 'updated_at']);
+
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'data' => $patron,
+        ], 200);
+
+      }
+        
     }
 
 
     public function update(Request $request, $school_id)
     {
 
-           
 
         $existingPatron = Patron::where('patron_id', $request->input('patron_id'))->orWhere('school_id', $request->input('school_id'))->first();
 
@@ -178,21 +243,35 @@ class PatronController extends Controller
                
                     $existingPatron->update($data);
 
+                    $existingPatron->makeHidden(['created_at', 'updated_at']);
+
                     return response()->json([
+                        'status' => 'success',
+                        'code' => 200,
                         'success' => 'Patron updated successfully.',
                         'data' => $existingPatron,
-                    ]);
+                    ], 200);
+                    
 
                 } catch (\Exception $e) {
+
                     return response()->json([
+                        'status' => 'error',
+                        'code' => 500,
                         'error' => 'An error occurred while processing the request.',
-                        'message' => $e->getMessage()
+                        'message' => $e->getMessage(),
                     ], 500);
+                    
                 }
 
 
         }else{
-            return response()->json(['error' => 'Patron failed update'], 422);
+
+            return response()->json([
+                'status' => 'error',
+                'code' => 422,
+                'error' => 'Patron failed update',
+            ], 422);
 
         }
      
@@ -204,16 +283,33 @@ class PatronController extends Controller
     {
         try {
             $patron = Patron::find($id);
-    
+
             if (!$patron) {
-                return response()->json(['error' => 'Patron not found.'], 404);
+                return response()->json([
+                    'status' => 'error',
+                    'code' => 404,
+                    'error' => 'Patron not found.',
+                ], 404);
             }
+            
     
             $patron->delete();
     
-            return response()->json(['success' => 'Patron deleted successfully.']);
+           return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'success' => 'Patron deleted successfully.',
+            ], 200);
+
+
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to delete patron.', 'message' => $e->getMessage()], 500);
+            return response()->json([
+                'status' => 'error',
+                'code' => 500,
+                'error' => 'Failed to delete patron.',
+                'message' => $e->getMessage(),
+            ], 500);
+            
         }
     }
     

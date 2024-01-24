@@ -42,7 +42,6 @@ Route::middleware(['librarian.ui'])->group(function () {
 
   //DASHBOARD VIEW
   Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'dashboard'])->name('dashboard');
-
   //PATRON VIEW
   Route::get('/patron', [PatronController::class, 'displayPatrons'])->name('patron');
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Book;
 use App\Models\BorrowHistory;
 use App\Models\Patron;
 use App\Models\ReturnHistory;
@@ -52,10 +53,24 @@ class BorrowReturnController extends Controller
         $query->orderBy($sortColumn, $sortOrder);
         $result = $query->paginate($limit, ['*'], 'page', $page);
 
+        if ($result->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'error' => 'No borrow history records found.',
+            ], 404);
+        }
+        
+
+
         return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Borrowing history loaded.',
             'data' => $result->items(),
             'links' => $result->links()->toHtml(),
-        ]);
+        ], 200);
+        
      
     }
     
@@ -87,59 +102,26 @@ class BorrowReturnController extends Controller
             $query->orderBy($sortColumn, $sortOrder);
             $result = $query->paginate($limit, ['*'], 'page', $page);
 
+            
+            if ($result->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'code' => 404,
+                    'error' => 'No return history records found.',
+                ], 404);
+            }
+
             return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Returning history loaded.',
                 'data' => $result->items(),
                 'links' => $result->links()->toHtml(),
-            ]);
+            ], 200);
       
     }
 
   
-   
-    // public function showReturnHistory(Request $request)
-    // {
-    //     $page = $request->input('page', 1);
-    //     $limit = max($request->input('limit', 10), 1); // Ensure a minimum limit of 1
-    //     $search = $request->input('search');
-    
-    //     if ($request->expectsJson()) {
-    //         $query = ReturnHistory::with(['borrower', 'book', 'borrowHistory']);
-            
-    //         // Apply search filter if search value is present
-    //         if ($request->filled('search')) {
-    //             $search = $request->input('search');
-    //             $query->where(function ($subQuery) use ($search) {
-    //                 $subQuery->where('id', 'like', '%' . $search . '%')
-    //                     ->orWhereHas('borrower', function ($subQuery) use ($search) {
-    //                         $subQuery->where('name', 'like', '%' . $search . '%')
-    //                             ->orWhere('type', 'like', '%' . $search . '%');
-    //                     })
-    //                     ->orWhereHas('borrowHistory', function ($subQuery) use ($search) {
-    //                         $subQuery->where('borrow_id', 'like', '%' . $search . '%');
-    //                     })
-    //                     ->orWhereHas('book', function ($subQuery) use ($search) {
-    //                         $subQuery->where('title', 'like', '%' . $search . '%');
-    //                     });
-    //             });
-    //         }
-    
-    //         // Paginate the result
-    //         $result = $query->paginate($limit, ['*'], 'page', $page);
-    
-    //         // Add pagination links to the result
-    //         $result->appends(['search' => $search]); // Append search parameter to pagination links
-    
-    //         return response()->json([
-    //             'data' => $result->items(),
-    //             'links' => $result->links()->toHtml(),
-    //         ]);
-    //     } else {
-    //         return response()->json(['error' => 'Invalid Request'], 400);
-    //     }
-    // }
-    
-    
-
 
 
   
@@ -149,16 +131,34 @@ class BorrowReturnController extends Controller
 
         $display = BorrowHistory::with('borrower')
         ->where('book_id', $book_id)
-        ->orderBy('created_at', 'desc') // Order by created_at in descending order
-        ->limit(10) // Limit the results to the most recent 5 records
+        ->orderBy('created_at', 'desc') 
+        ->limit(5) 
         ->get();
     
         
         if ($display->isNotEmpty()) {
-            return response()->json(['success' => 'History Loaded.', 'data' => $display]);
+            return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'This book\'s History Loaded.',
+                'data' => $display,
+            ], 200);
+        } elseif(!Book::where('id',$book_id)->exists()){
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'This book\'s id is not existing.',
+            ], 404);
+
         } else {
-            return response()->json(['error' => 'No History Found', 'data' => $display]);
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'This book\'s No History founded.',
+                'data' => $display,
+            ], 404);
         }
+        
     }
     
     

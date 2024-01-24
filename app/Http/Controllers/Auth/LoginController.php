@@ -50,73 +50,41 @@ class LoginController extends Controller
 
 
     
-    public function login(Request $request)
-    {
-        $credentials = $request->only('username', 'password');
+    // public function login(Request $request)
+    // {
+    //     $credentials = $request->only('username', 'password');
     
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
+    //     if (Auth::attempt($credentials)) {
+    //         $user = Auth::user();
     
-            if ($user->email_verified_at !== null) {
-    
-                $token = $user->createToken('authToken')->plainTextToken;
+    //         if ($user->email_verified_at !== null) {
+
+    //             session(['user_id' => $user->id]);
+    //             $token = $user->createToken('authToken')->plainTextToken;
                 
-                return response()->json([
-                    'message' => 'Login successful',
-                    'dashboard_url' => '/dashboard',
-                    'user' => $user,
-                    'bearer_token' => $token  
-                ], 200);
+    //             return response()->json([
+    //                 'message' => 'Login successful',
+    //                 'dashboard_url' => '/dashboard',
+    //                 'user' => $user,
+    //                 'bearer_token' => $token  
+    //             ], 200);
     
-            } else {
-                // pag email not verified
-                return response()->json([
-                    'message' => 'Email not yet verified',
-                    'dashboard_url' => '/login',
-                ], 401);
-            }
-        }
-    
-        // Unsuccessful login attempts
-        return response()->json([
-            'message' => 'Invalid credentials',
-            'dashboard_url' => '/login',
-        ], 401);
-    }
-
-
-    // public function logout(Request $request)
-    // {
-    //     $this->guard()->logout();
-    
-    //     $request->session()->invalidate();
-    
-    //     $request->session()->regenerateToken();
-    
-    //     if ($request->expectsJson() || $request->ajax()) {
-    //         return response()->json(['message' => 'Logout successful'], 204);
+    //         } else {
+    //             // pag email not verified
+    //             return response()->json([
+    //                 'message' => 'Email not yet verified',
+    //                 'dashboard_url' => '/login',
+    //             ], 401);
+    //         }
     //     }
     
-    //     return redirect('/');
-    // }
-    
-
-    // public function logout(Request $request)
-    // {
-    
-    //     if (Auth::check()) {
-    
-    //             Auth::guard('web')->logout();
-    //             return redirect()->route('login');
-            
-    //     } else {
-    //         return redirect()->route('login');
- 
-    //     }
+    //     // Unsuccessful login attempts
+    //     return response()->json([
+    //         'message' => 'Invalid credentials',
+    //         'dashboard_url' => '/login',
+    //     ], 401);
     // }
 
-
-  
     
     public function logout(Request $request)
         {

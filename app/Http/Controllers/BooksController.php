@@ -147,12 +147,12 @@ class BooksController extends Controller
                 if ($book) {
                     return response()->json(['success' => 'Book added successfully.', 'book' => $book]);
                 } else {
-                    return response()->json(['error' => 'Failed to save book.']);
+                    return response()->json(['error' => 'Failed to add book.']);
                 }
         
             } catch (\Exception $e) {
                 return response()->json([
-                    'error' => 'Failed to save book.',
+                    'error' => 'Failed to add book.',
                     'message' => $e->getMessage()
                 ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
@@ -162,9 +162,9 @@ class BooksController extends Controller
         
         public function update(Request $request, $book_id)
         {
-            if (!$request->isMethod('put')) {
-                return response()->json(['error' => 'Method Not Allowed'], 405);
-            }
+            // if (!$request->isMethod('put')) {
+            //     return response()->json(['error' => 'Method Not Allowed'], 405);
+            // }
         
             try {
                 $book = Book::find($book_id);
@@ -198,7 +198,7 @@ class BooksController extends Controller
                     $storagePath = 'books';
                     $title = $request->input('title');
                     $extension = $uploadedImage->getClientOriginalExtension();
-                    $newFileName = $title . '.' . $extension;
+                    $newFileName = $title . '_' . time() . '.' . $extension;
                     $uploadedImage->storeAs($storagePath, $newFileName, 'public');
                     $validatedData['book_image'] = $newFileName;
                 }

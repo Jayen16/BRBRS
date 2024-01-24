@@ -8,7 +8,8 @@
                 Add New Book</h2>
             <div class="h-[55vh] overflow-y-auto">
                 <!-- new row -->
-                <form id="bookForm" name="bookForm" class="form-horizontal" enctype="multipart/form-data">
+                {{-- <form id="bookForm" name="bookForm" class="form-horizontal" enctype="multipart/form-data"> --}}
+                    <form id="bookForm" name="bookForm" class="form-horizontal" enctype="multipart/form-data" >
                     @csrf
                     <input type="hidden" name="book_number_id" id="book_number_id">
                     <div class="border border-gray-200 rounded-lg p-2 py-4">
@@ -94,7 +95,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <input type="file" accept="image/jpeg, image/png" id="book_image" name="book_image" value="default-bookcover.jpg" onchange="previewImage(event)" class="hidden">
+                                        <input type="file" accept="image/jpeg, image/png" id="book_image" name="book_image" onchange="previewImage(event)" class="hidden">
                                         <label class="text-black text-sm px-3 py-1 rounded-md bg-gray-300 hover:bg-gray-400 hover:text-white" for="book_image">
                                             Upload Image
                                         </label>
@@ -206,7 +207,7 @@
     
 </div>
 
-<script>
+{{-- <script>
         function previewImage(event) {
         var reader = new FileReader();
         reader.onload = function() {
@@ -216,4 +217,4 @@
         reader.readAsDataURL(event.target.files[0]);
     }
 
-</script>
+</script> --}}
