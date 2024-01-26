@@ -123,7 +123,7 @@
 
                             <div class="flex justify-end gap-2">
                                 <!-- borrow modal -->
-                                <div x-data="{ showModal: false, statusValue: '' }" class="mb-4 flex justify-end" id="borrowModal">    
+                                {{-- <div x-data="{ showModal: false, statusValue: '' }" class="mb-4 flex justify-end" id="borrowModal">    
 
                                     <button x-on:click="
                                     if ('{{ $selectedBook->status }}' === 'borrowed') {
@@ -135,6 +135,7 @@
                                     }
                                     showModal = true;
                                     sessionStorage.setItem('statusValue', statusValue);
+                                    $nextTick(()=>{$refs.borrow_book_id.focucs();});
                                     " id="status_button" data-status="{{ $selectedBook->status }}"
 
                                 class="bg-green-800 hover:bg-green-800 p-3 rounded-md text-white font-medium mt-4">
@@ -143,6 +144,24 @@
 
                                     <x-BorrowBook :bookId="$bookId" />
                                                             
+                                </div> --}}
+
+                                <div x-data="{ showModal: false, statusValue: '' }" class="mb-4 flex justify-end" id="borrowModal">
+                                    <button x-on:click="
+                                        if ('{{ $selectedBook->status }}' === 'borrowed') {
+                                            statusValue = 'Return Book';
+                                        } else if ('{{ $selectedBook->status }}' === 'available') {
+                                            statusValue = 'Borrow Book';
+                                        } else if ('{{ $selectedBook->status }}' === 'returned') {
+                                            statusValue = 'Returned Book';
+                                        }
+                                        showModal = true;
+                                        sessionStorage.setItem('statusValue', statusValue);
+                                        $nextTick(() => { $refs.borrow_book_id.focus(); });
+                                    " id="status_button" data-status="{{ $selectedBook->status }}" class="bg-green-800 hover:bg-green-800 p-3 rounded-md text-white font-medium mt-4">
+                                        {{ $selectedBook->status === 'borrowed' ? 'Return' : 'Borrow' }}
+                                    </button>
+                                    <x-BorrowBook :bookId="$bookId" />
                                 </div>
                         </div>
                         
@@ -163,6 +182,10 @@
 
     $(document).ready(function() {
 
+        $('#myModal').on("shown.bs.modal", function(){
+            $('#borrow_book_id').focus();
+        })
+
         
         function fetchBookDetails() {
             var bookId = {{ $id }}; // Make sure $id exists and is passed correctly
@@ -172,7 +195,8 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
-                    updateBookDetails(response.book);       
+                    updateBookDetails(response.book);    
+                       
                 },
                 error: function(xhr, status, error) {
                     console.error(xhr.responseText);
@@ -222,6 +246,7 @@
 
                 } else if (selectedBook.status === 'available') {
                     $('#status_button').text("Borrow");
+                    
                 }
         }
 
@@ -262,8 +287,8 @@
                         '<td class="py-1 px-8 border-b border-gray-200 font-semibold"><p class="borrower_no"></p></td>' +
                         '<td class="py-1 px-8 border-b border-gray-200 w-[24rem]" ><p class="borrower_name" ></p></td>' +
                         '<td class="py-1 px-8 border-b border-gray-200"><p class="borrower_type"></p></td>' +
-                        '<td class="py-1 px-8 border-b border-gray-200"><p class="borrow_status"></p></td>' +
-                        '<td class="py-1 px-8 border-b border-gray-200"><p class="borrower_returned"></p></td>' +
+                        '<td class="py-1 px-8 border-b border-gray-200 w-[26rem]" ><p class="borrow_status"></p></td>' +
+                        '<td class="py-1 px-8 border-b border-gray-200 w-[26rem]"><p class="borrower_returned"></p></td>' +
                         '</tr>');
 
                     // Set the text content of each cell in the new row
@@ -275,7 +300,12 @@
                     newRow.find('.borrower_no').text(historyItem.id);
                     newRow.find('.borrower_name').text(historyItem.borrower.first_name + ' ' + historyItem.borrower.last_name);
                     newRow.find('.borrower_type').text(historyItem.borrower.type);
-                    newRow.find('.borrow_status').text(status);
+                    newRow.find('.borrow_status').text(formatDate(historyItem.created_at));
+                    // newRow.find('.borrow_status').text(status);
+
+                    // if(status =='returned' || status =='borrowed'){
+
+                    // }
 
                     if(historyItem.borrow_status == 'returned'){
                         newRow.find('.borrower_returned').text(formatDate(historyItem.updated_at));

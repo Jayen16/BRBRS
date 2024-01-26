@@ -163,25 +163,27 @@
                           console.error('#ajaxModal element not found');
                       }
 
+                      console.log(data.data);
+
                       $('#modelHeading').html("Edit Patron");
                       $('#saveBtn').text('Save');
                       $('#saveBtn').val("edit-patron");
 
-                      $('#id').val(data.id);
-                      $('#patron_id').val(data.patron_id);
-                      $('#school_id').val(data.school_id);
-                      $('#first_name').val(data.first_name);
-                      $('#middle_name').val(data.middle_name);
-                      $('#last_name').val(data.last_name);
-                      $('#program').val(data.program);
-                      $('#sex').val(data.sex);
-                      $('#type').val(data.type);
-                      $('#registration_status').val(data.registration_status);
+                      $('#id').val(data.data.id);
+                      $('#patron_id').val(data.data.patron_id);
+                      $('#school_id').val(data.data.school_id);
+                      $('#first_name').val(data.data.first_name);
+                      $('#middle_name').val(data.data.middle_name);
+                      $('#last_name').val(data.data.last_name);
+                      $('#program').val(data.data.program);
+                      $('#sex').val(data.data.sex);
+                      $('#type').val(data.data.type);
+                      $('#registration_status').val(data.data.registration_status);
 
 
                       $('#school_id').prop('disabled', true);
 
-                        if (data.type == 'Student') {
+                        if (data.data.type == 'Student') {
                             $('#programContainer').show();
                         } else {
                             $('#programContainer').hide();

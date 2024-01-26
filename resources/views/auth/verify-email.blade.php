@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('title', 'Verify')
 
 @section('content')
 <div class="h-full flex justify-center">

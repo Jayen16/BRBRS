@@ -19,7 +19,7 @@
                             </label>
                             <input
                               class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700 font-semibold"
-                              id="school_id" name="school_id" type="text" placeholder="number id" required>
+                              id="school_id" name="school_id" type="text" placeholder="Student No./Employee No." required>
                               <p id="school_id_error"> </p>
                           </div>
                           <div class="w-1/2 px-3 mb-3">
@@ -28,7 +28,7 @@
                             </label>
                             <input
                               class="w-full border p-2 rounded-md mb-1 focus:outline-none focus:border-green-700 font-semibold"
-                              id="patron_id" name="patron_id"  type="number" placeholder="Student No./Employee No." maxlength="10"
+                              id="patron_id" name="patron_id"  type="number" placeholder="RFID no." maxlength="10"
                               oninput="javascript: if (this.value.length > this.maxLength) this.value =
                             this.value.slice(0, this.maxLength);" required>
                             <p id="patron_id_error"> </p>

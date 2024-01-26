@@ -1,4 +1,4 @@
-<div x-show="showModal" x-cloak>
+<div x-show="showModal" id="myModal" x-cloak>
     <!-- borrow book modal -->
     <div x-transition x-cloak
         class="fixed inset-0 flex items-center justify-center z-20">
@@ -17,9 +17,11 @@
             <div class="flex justify-center">
                 <form id="borrowForm" name="borrowForm" class="form-horizontal">
                     @csrf
-                    <input type="password" name="borrow_book_id" id="borrow_book_id" placeholder=" Click to read RFID" class="bg-slate-100 p-2 mb-2 border rounded w-96 text-lg">
+                   <input type="password" name="borrow_book_id" id="borrow_book_id" placeholder=" Tap to read RFID" class="bg-slate-100 p-2 mb-2 border rounded w-96 text-lg" x-ref="borrow_book_id">
 
             </div>
+
+            
 
             {{-- NAKUHA NATIN ID GALING SA bookdescription.blade.php , TAKE NOTE, YUNG :bookId ang name variable , galing yan sa <x-BorrowBook :bookId="$bookId" /> --}}
             <div>
@@ -96,6 +98,26 @@
 <script>
 
     $(document).ready(function() {
+
+        // $('#myModal').on("shown.bs.modal", function(){
+        //     $('#borrow_book_id').focus();
+        //             $nextTick(()=>{
+        //     setTimeout(()=>{
+        //         document.querySelector('input').focus();
+        //         document.getElementById('borrow_book_id').focus();
+        //     })
+        // })
+
+        // })
+        
+
+        // window.addEventListener('alpine:init',() =>{
+        //     Alpine.directive('autofocus', (el) =>{
+        //         el.focus();
+        //     })
+        // })
+
+        // Alpine.store('showModal', true);
        
         $('#borrow_book_id').off('keydown').on('keydown', function(e) {
         if (e.key === 'Enter') {
@@ -184,6 +206,15 @@
                         text: response.success,
                     }).then((result) => {
                         if (result.isConfirmed) {
+
+                            let alpineInstance = document.getElementById('borrowModal');
+
+                            if (alpineInstance) {
+                                alpineInstance.__x.$data.showModal = false;
+                            } else {
+                                console.error('#ajaxModal element not found');
+                            }
+
                         }
                     });
                 }
@@ -222,6 +253,9 @@
 
         if (rfidId) {
             performTransaction(transaction,bookId, rfidId);
+
+
+
         } else {
             Swal.fire({
                 icon: 'error',
@@ -248,5 +282,6 @@
         clearFormFields();
     });
 
+    document.getElementById('borrow_book_id').focus();
 
 </script>
